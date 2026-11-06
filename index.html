@@ -3,444 +3,297 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070908">
 <title>MEDUSA by TYMSTAR — One Upload. One Link. Access Anywhere.</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--g:#0b6b4a;--g2:#10a070;--gold:#d4af37;--gold2:#f1d77a;--bg:#070908;--card:rgba(255,255,255,.04);--bd:rgba(255,255,255,.09);--t:#f4f6f5;--mut:#9aa6a1}
-*{box-sizing:border-box;margin:0}html,body{background:var(--bg);color:var(--t);font-family:Inter,system-ui,sans-serif;min-height:100%}
-body{background:radial-gradient(900px 500px at 15% -10%,rgba(11,107,74,.35),transparent),radial-gradient(700px 400px at 100% 10%,rgba(11,107,74,.18),transparent),var(--bg);background-attachment:fixed}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--t);font-family:Inter,system-ui,sans-serif;min-height:100%}
+body{background:radial-gradient(900px 500px at 15% -10%,rgba(11,107,74,.35),transparent),radial-gradient(700px 400px at 100% 10%,rgba(11,107,74,.18),transparent),var(--bg);background-attachment:fixed;overflow-x:hidden;position:relative}
+body::before{content:"";position:fixed;inset:-50%;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 20% 30%,rgba(0,255,140,.13),transparent 35%),radial-gradient(ellipse at 75% 20%,rgba(160,60,255,.13),transparent 35%),radial-gradient(ellipse at 50% 80%,rgba(255,40,150,.10),transparent 35%),radial-gradient(ellipse at 85% 75%,rgba(30,150,255,.12),transparent 35%);filter:blur(35px);animation:aurora 14s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.65;background-image:radial-gradient(2px 2px at 10% 20%,white 50%,transparent 100%),radial-gradient(2px 2px at 30% 75%,#10ffb0 50%,transparent 100%),radial-gradient(2px 2px at 55% 15%,#f1d77a 50%,transparent 100%),radial-gradient(3px 3px at 80% 45%,white 50%,transparent 100%),radial-gradient(2px 2px at 92% 85%,#c77dff 50%,transparent 100%),radial-gradient(2px 2px at 65% 65%,#50c8ff 50%,transparent 100%),radial-gradient(2px 2px at 18% 90%,#ff70c5 50%,transparent 100%);background-size:350px 350px;animation:sparkle 18s linear infinite,blink 3s ease-in-out infinite alternate}
+@keyframes aurora{0%{transform:translate(-3%,-2%) rotate(0) scale(1)}50%{transform:translate(3%,2%) rotate(8deg) scale(1.08)}100%{transform:translate(-2%,4%) rotate(-8deg) scale(1.04)}}
+@keyframes sparkle{to{background-position:350px 350px}}@keyframes blink{from{opacity:.2}to{opacity:.8}}
+#root{position:relative;z-index:1}
 a{color:inherit;text-decoration:none}
-nav{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid var(--bd);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5;background:rgba(7,9,8,.7);flex-wrap:wrap}
+nav{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid var(--bd);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5;background:rgba(7,9,8,.85);flex-wrap:wrap}
 .logo b{font-size:20px;letter-spacing:.2em}.logo small{display:block;font-size:10px;color:var(--gold);letter-spacing:.15em}
 nav .sp{flex:1}nav a.l{color:var(--mut);font-size:14px}nav a.l:hover{color:var(--gold)}
-.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14110a;border:0;padding:10px 18px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;transition:.2s}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(212,175,55,.3)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14110a;border:0;padding:10px 18px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(212,175,55,.3)}
 .btn.o{background:transparent;color:var(--t);border:1px solid var(--bd)}.btn.o:hover{border-color:var(--gold);color:var(--gold);box-shadow:none}
 .btn.s{padding:6px 12px;font-size:12px}.btn.d{background:#7a1f1f;color:#fff}
 main{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
-.hero{text-align:center;padding:40px 0 24px}.hero h1{font-size:clamp(30px,6vw,56px);line-height:1.1;background:linear-gradient(90deg,#fff,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--mut);max-width:620px;margin:16px auto 24px;line-height:1.6}
-.glass{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;backdrop-filter:blur(12px)}
+.hero{text-align:center;padding:40px 0 24px;position:relative;isolation:isolate}
+.hero h1{font-size:clamp(30px,6vw,56px);line-height:1.1;background:linear-gradient(90deg,#fff,#10d890,#55caff,#c77dff,#f1d77a,#fff);background-size:300% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:titleReveal 1.2s ease both,rainbowText 8s linear infinite;text-shadow:0 0 35px rgba(16,160,112,.2)}
+.hero p{color:var(--mut);max-width:620px;margin:16px auto 24px;line-height:1.6;animation:fadeUp 1.5s ease both}
+@keyframes rainbowText{to{background-position:300% center}}@keyframes titleReveal{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.glass{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;backdrop-filter:blur(12px);transition:border-color .35s,transform .35s,box-shadow .35s}
+.glass:hover{border-color:rgba(16,160,112,.35);box-shadow:0 0 30px rgba(16,160,112,.08)}
 .drop{border:2px dashed rgba(16,160,112,.5);border-radius:20px;padding:44px 16px;text-align:center;cursor:pointer;transition:.2s}
 .drop.h,.drop:hover{border-color:var(--gold);background:rgba(212,175,55,.05)}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
 .row .n{flex:1;min-width:160px;word-break:break-all}.row small{color:var(--mut)}
-.bar{height:6px;background:var(--bd);border-radius:9px;overflow:hidden;flex-basis:100%}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g2),var(--gold))}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0}
 .stat b{font-size:28px;color:var(--gold);display:block}.stat span{color:var(--mut);font-size:13px}
 input,select{background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--t);padding:10px 14px;border-radius:12px;font-size:14px;max-width:100%}
+select option{background:#101713;color:#fff}
 .tools{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.tools input{flex:1;min-width:160px}
-.view{min-height:100vh;display:flex;flex-direction:column}.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
-.stage img{max-width:100%;max-height:78vh;border-radius:12px;cursor:zoom-in;transition:transform .2s}.stage img.z{transform:scale(2);cursor:zoom-out}
-.stage video{max-width:100%;max-height:78vh;border-radius:12px}.stage iframe{width:100%;height:80vh;border:0;border-radius:12px;background:#fff}
+.view{min-height:100vh;display:flex;flex-direction:column}.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;min-height:45vh}
+.stage img{max-width:100%;max-height:78vh;border-radius:12px;cursor:zoom-in;transition:transform .2s}.stage img.z{transform:scale(1.5);cursor:zoom-out}
+.stage video{max-width:100%;max-height:78vh;border-radius:12px}.stage iframe{width:min(100%,1000px);height:80vh;border:0;border-radius:12px;background:#fff}
 .aud{width:min(460px,100%);text-align:center}.aud .disc{width:150px;height:150px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(var(--g),var(--gold),var(--g));animation:sp 6s linear infinite;animation-play-state:paused}
 .aud.p .disc{animation-play-state:running}@keyframes sp{to{transform:rotate(360deg)}}.aud audio{width:100%;margin-top:14px}
-.err{color:#ff8b8b;font-size:13px;margin-top:8px}.ok{color:var(--g2)}
- 
-/* ===== MEDUSA RAINBOW & SPARKLE EFFECTS ===== */
-
-body {
-  overflow-x: hidden;
-  position: relative;
-}
-
-#root {
-  position: relative;
-  z-index: 1;
-}
-
-/* Animated rainbow aurora background */
-body::before {
-  content: "";
-  position: fixed;
-  inset: -50%;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 20% 30%, rgba(0,255,140,.13), transparent 35%),
-    radial-gradient(ellipse at 75% 20%, rgba(160,60,255,.13), transparent 35%),
-    radial-gradient(ellipse at 50% 80%, rgba(255,40,150,.10), transparent 35%),
-    radial-gradient(ellipse at 85% 75%, rgba(30,150,255,.12), transparent 35%);
-  filter: blur(35px);
-  animation: rainbowAurora 14s ease-in-out infinite alternate;
-}
-
-@keyframes rainbowAurora {
-  0% { transform: translate(-3%, -2%) rotate(0deg) scale(1); }
-  50% { transform: translate(3%, 2%) rotate(8deg) scale(1.08); }
-  100% { transform: translate(-2%, 4%) rotate(-8deg) scale(1.04); }
-}
-
-/* Sparkling stars */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: .65;
-  background-image:
-    radial-gradient(2px 2px at 10% 20%, white 50%, transparent 100%),
-    radial-gradient(2px 2px at 30% 75%, #10ffb0 50%, transparent 100%),
-    radial-gradient(2px 2px at 55% 15%, #f1d77a 50%, transparent 100%),
-    radial-gradient(3px 3px at 80% 45%, white 50%, transparent 100%),
-    radial-gradient(2px 2px at 92% 85%, #c77dff 50%, transparent 100%),
-    radial-gradient(2px 2px at 65% 65%, #50c8ff 50%, transparent 100%),
-    radial-gradient(2px 2px at 18% 90%, #ff70c5 50%, transparent 100%);
-  background-size: 350px 350px;
-  animation: sparkleMove 18s linear infinite,
-             sparkleBlink 3s ease-in-out infinite alternate;
-}
-
-@keyframes sparkleMove {
-  from { background-position: 0 0; }
-  to { background-position: 350px 350px; }
-}
-
-@keyframes sparkleBlink {
-  from { opacity: .2; }
-  to { opacity: .8; }
-}
-
-/* Welcome section */
-.hero {
-  position: relative;
-  isolation: isolate;
-}
-
-.hero h1 {
-  animation: titleReveal 1.2s ease both;
-  text-shadow: 0 0 35px rgba(16,160,112,.2);
-}
-
-.hero p {
-  animation: fadeUp 1.5s ease both;
-}
-
-/* Rainbow glow on main heading */
-.hero h1 {
-  background: linear-gradient(
-    90deg,
-    #ffffff,
-    #10d890,
-    #55caff,
-    #c77dff,
-    #f1d77a,
-    #ffffff
-  );
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: titleReveal 1.2s ease both,
-             rainbowText 8s linear infinite;
-}
-
-@keyframes rainbowText {
-  to { background-position: 300% center; }
-}
-
-@keyframes titleReveal {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Glass cards */
-.glass {
-  transition: border-color .35s ease,
-              transform .35s ease,
-              box-shadow .35s ease;
-}
-
-.glass:hover {
-  border-color: rgba(16,160,112,.45);
-  box-shadow: 0 0 30px rgba(16,160,112,.10);
-  transform: translateY(-3px);
-}
-
-/* Buttons */
-.btn {
-  transition: transform .3s ease,
-              box-shadow .3s ease,
-              filter .3s ease;
-}
-
-.btn:hover {
-  transform: translateY(-3px) scale(1.03);
-  filter: brightness(1.1);
-  box-shadow: 0 0 22px rgba(212,175,55,.35);
-}
-
-.btn:active {
-  transform: scale(.96);
-}
-
-/* Welcome page entrance */
-.welcome-mode main {
-  animation: pageEnter 1s ease both;
-}
-
-@keyframes pageEnter {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  body::before,
-  body::after,
-  .hero h1,
-  .hero p,
-  .welcome-mode main {
-    animation: none !important;
-  }
-
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-  }
-}
-
+.err{color:#ff8b8b;font-size:13px;margin-top:8px}.ok{color:var(--g2);overflow-wrap:anywhere}
 footer{border-top:1px solid var(--bd);padding:26px 22px;text-align:center;color:var(--mut);font-size:13px}footer nav{all:unset}
 footer .fl{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0}footer .fl a:hover{color:var(--gold)}
 h2{margin-bottom:12px}.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);color:var(--mut)}
+.status{color:var(--mut);font-size:13px}.empty{color:var(--mut);padding:14px 0}
+.welcome-mode main{animation:pageEnter 1s ease both}@keyframes pageEnter{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body::before,body::after,.hero h1,.hero p,.welcome-mode main{animation:none!important}*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script>
-// ===== MEDUSA CONFIGURATION =====
-const SB_URL='https://xmdspbvrurqgdhogiwxj.supabase.co';
-const SB_KEY='sb_publishable_k2kYheLD-ZKaXnfOR87yig_NHify9XL';
+'use strict';
 
-const CONFIGURED=true;
-const MAX=50*1024*1024, BUCKET='medusa';
+// MEDUSA configuration. The publishable key is safe for frontend use.
+// Never place a Supabase service_role or secret key in this file.
+const SB_URL = 'https://xmdspbvrurqgdhogiwxj.supabase.co';
+const SB_KEY = 'sb_publishable_k2kYheLD-ZKaXnfOR87yig_NHify9XL';
+const MAX = 50 * 1024 * 1024;
+const BUCKET = 'medusa';
 
-const sb=supabase.createClient(SB_URL,SB_KEY);
-// ===== MEDUSA CORE HELPERS =====
-
-const root = document.getElementById('root');
-
-let user = null;
-let role = 'user';
-
-// Select an element
-function $(selector) {
-  return document.querySelector(selector);
+if (!window.supabase) {
+  document.getElementById('root').innerHTML =
+    '<main><div class="glass"><h2>MEDUSA could not start</h2><p class="err">The Supabase library did not load. Check your internet connection and refresh.</p></div></main>';
+  throw new Error('Supabase JavaScript library did not load.');
 }
 
-// Safely display text inside HTML
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+const root = document.getElementById('root');
+let user = null;
+let role = 'user';
+let routeRunning = false;
+
+function $(selector, scope = document) {
+  return scope.querySelector(selector);
+}
+
 function esc(value) {
   return String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   })[char]);
 }
 
-// Format file sizes
 function fmt(bytes) {
-  if (!Number.isFinite(Number(bytes))) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let size = Number(bytes);
-  let index = 0;
-
+  const value = Number(bytes);
+  if (!Number.isFinite(value) || value < 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = value, index = 0;
   while (size >= 1024 && index < units.length - 1) {
     size /= 1024;
     index++;
   }
-
   return `${size.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
 }
 
-// Identify supported file types
 function kindOf(file) {
   const type = (file.type || '').toLowerCase();
   const name = (file.name || '').toLowerCase();
 
-  if (type.startsWith('image/') ||
-      /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif|ico)$/.test(name)) {
-    return 'image';
-  }
+  // SVG is intentionally excluded from image uploads for safer public viewing.
+  if ((type.startsWith('image/') && type !== 'image/svg+xml') ||
+      /\.(jpg|jpeg|png|gif|webp|bmp|avif|ico)$/.test(name)) return 'image';
 
   if (type.startsWith('video/') ||
-      /\.(mp4|webm|mov|m4v|avi|mkv|ogv)$/.test(name)) {
-    return 'video';
-  }
+      /\.(mp4|webm|mov|m4v|avi|mkv|ogv)$/.test(name)) return 'video';
 
   if (type.startsWith('audio/') ||
-      /\.(mp3|wav|ogg|m4a|aac|flac|opus|wma)$/.test(name)) {
-    return 'audio';
-  }
+      /\.(mp3|wav|ogg|m4a|aac|flac|opus|wma)$/.test(name)) return 'audio';
 
-  if (
-    type.startsWith('application/') ||
-    type.startsWith('text/') ||
-    /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z|json|xml)$/.test(name)
-  ) {
+  if (type.startsWith('application/') || type.startsWith('text/') ||
+      /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z|json|xml)$/.test(name)) {
     return 'document';
   }
-
   return null;
 }
 
-// Generate a unique file ID
 function newId() {
-  if (crypto.randomUUID) return crypto.randomUUID();
+  if (window.crypto?.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
     const r = Math.random() * 16 | 0;
     return (c === 'x' ? r : (r & 3 | 8)).toString(16);
   });
 }
 
-// Generate the public MEDUSA viewing link
 function linkOf(id) {
   return `${location.origin}${location.pathname}#/view/${encodeURIComponent(id)}`;
 }
 
-function shell(inner){
- root.innerHTML=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span>
- <a class="l" href="#/">Home</a><a class="l" href="#/about">About</a><a class="l" href="#/dashboard">Dashboard</a>${role==='admin'?'<a class="l" href="#/admin">Admin</a>':''}
- ${user?'<button class="btn o s" id="out">Sign out</button>':'<a class="btn s" href="#/auth">Sign in</a>'}</nav>
- <main>${inner}</main>
- <footer><b style="letter-spacing:.2em;color:var(--t)">MEDUSA</b><br>By TYMSTAR<br><i>One Upload. One Link. Access Anywhere.</i>
- <div class="fl"><a href="#/">Home</a><a href="#/about">About</a><a href="#/">Upload</a><a href="#/dashboard">Dashboard</a><a href="#/page/privacy">Privacy Policy</a><a href="#/page/terms">Terms of Service</a><a href="#/page/contact">Contact</a></div>
- © 2026 MEDUSA by TYMSTAR. All Rights Reserved.</footer>`;
- const o=$('#out'); if(o)o.onclick=async()=>{await sb.auth.signOut();location.hash='#/'};
-}
-async function loadUser(){
- const {data:{session}}=await sb.auth.getSession(); user=session?.user||null; role='user';
- if(user){const {data}=await sb.from('profiles').select('role,suspended').eq('id',user.id).single(); if(data){role=data.role; user.suspended=data.suspended}}
-}
-
-// ---------- Home / upload ----------
-function home(){
-
- // Welcome page for visitors who are not signed in
- if(!user){
-   document.body.classList.add('welcome-mode');
-  root.innerHTML=`
-  <nav>
-   <a href="#/" class="logo">
-    <b>MEDUSA</b>
-    <small>By TYMSTAR</small>
-   </a>
-   <span class="sp"></span>
-   <a class="btn s" href="#/auth">Get Started</a>
-  </nav>
-
-  <main>
-   <section class="hero" style="padding:100px 10px 70px">
-    <div style="color:var(--gold);letter-spacing:.3em;font-size:12px;margin-bottom:20px">
-     MEDUSA BY TYMSTAR
-    </div>
-
-    <h1>Your Files.<br>Your Links.<br>Your Freedom.</h1>
-
-    <p>
-     Welcome to MEDUSA, your simple and reliable file-sharing platform.
-     Upload images, videos, documents and music, then turn them into
-     unique links that you can access and share anywhere.
-    </p>
-
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-     <a href="#/auth" class="btn">Sign In / Create Account</a>
-     <a href="#/about" class="btn o">Discover MEDUSA</a>
-    </div>
-   </section>
-
-   <div class="grid">
-    <div class="glass stat">
-     <b>01</b>
-     <span>Upload your files securely.</span>
-    </div>
-
-    <div class="glass stat">
-     <b>02</b>
-     <span>Generate unique sharing links.</span>
-    </div>
-
-    <div class="glass stat">
-     <b>03</b>
-     <span>Share and access your content anywhere.</span>
-    </div>
-   </div>
-
-   <section class="glass" style="text-align:center;margin-top:25px">
-    <h2>One Upload. One Link. Access Anywhere.</h2>
-    <p style="color:var(--mut);line-height:1.7;margin:12px 0 20px">
-     Your digital content deserves a simpler way to move.
-     Start using MEDUSA today.
-    </p>
-    <a href="#/auth" class="btn">Get Started Today</a>
-   </section>
-  </main>
-
-  <footer>
-   <b style="letter-spacing:.2em;color:var(--t)">MEDUSA</b>
-   <br>By TYMSTAR
-   <br><i>One Upload. One Link. Access Anywhere.</i>
-   <div class="fl">
-    <a href="#/">Home</a>
-    <a href="#/about">About</a>
-    <a href="#/page/privacy">Privacy Policy</a>
-    <a href="#/page/terms">Terms of Service</a>
-    <a href="#/page/contact">Contact</a>
-   </div>
-   © 2026 MEDUSA by TYMSTAR. All Rights Reserved.
-  </footer>
-    `;
-  return;
- }
-
- // Existing upload page for signed-in users
- document.body.classList.remove('welcome-mode');
-
- shell(`<section class="hero">
- <h1>Your Files. Your Links. Your Freedom.</h1>
- <p>Upload images, videos, documents and music. MEDUSA instantly transforms your files into shareable links that anyone can open.</p>
- <button class="btn" onclick="document.getElementById('up').scrollIntoView({behavior:'smooth'})">Upload Your Files</button>
- <a class="btn o" href="#/about">Explore Features</a></section>
-
- <section class="glass" id="up">
- <div class="drop" id="drop">
-  <div style="font-size:40px">⬆</div>
-  <h3>Drag &amp; drop files here, or tap to select</h3>
-  <p style="color:var(--mut);margin-top:8px;font-size:13px">
-   Images · Videos · Documents · Audio — up to 50 MB each
-  </p>
- </div>
- <input type="file" id="pick" multiple hidden>
- <div id="list"></div>
- </section>`);
-
- const d=$('#drop'),p=$('#pick');
-
- d.onclick=()=>p.click();
- p.onchange=()=>{up([...p.files]);p.value=''};
-
- d.ondragover=e=>{e.preventDefault();d.classList.add('h')};
- d.ondragleave=()=>d.classList.remove('h');
- d.ondrop=e=>{
-  e.preventDefault();
-  d.classList.remove('h');
-  up([...e.dataTransfer.files]);
- };
-}
-function up(files){
- if(!user){location.hash='#/auth';return}
- if(user.suspended){alert('Your account is suspended.');return}
- files.forEach(upOne);
+async function copyText(value) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      throw new Error('Clipboard unavailable');
+    }
+    return true;
+  } catch {
+    window.prompt('Copy this MEDUSA link:', value);
+    return false;
+  }
 }
 
-async function upOne(f) {
+function footer() {
+  return `<footer>
+    <b style="letter-spacing:.2em;color:var(--t)">MEDUSA</b><br>By TYMSTAR<br>
+    <i>One Upload. One Link. Access Anywhere.</i>
+    <div class="fl">
+      <a href="#/">Home</a><a href="#/about">About</a>
+      <a href="#/page/privacy">Privacy Policy</a>
+      <a href="#/page/terms">Terms of Service</a>
+      <a href="#/page/contact">Contact</a>
+    </div>
+    © 2026 MEDUSA by TYMSTAR. All Rights Reserved.
+  </footer>`;
+}
+
+function shell(inner) {
+  root.innerHTML = `<nav>
+    <a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a>
+    <span class="sp"></span>
+    <a class="l" href="#/">Home</a><a class="l" href="#/about">About</a>
+    <a class="l" href="#/dashboard">Dashboard</a>
+    ${role === 'admin' ? '<a class="l" href="#/admin">Admin</a>' : ''}
+    ${user ? '<button class="btn o s" id="out">Sign out</button>' : '<a class="btn s" href="#/auth">Sign in</a>'}
+  </nav><main>${inner}</main>${footer()}`;
+
+  const out = $('#out');
+  if (out) out.onclick = async () => {
+    const { error } = await sb.auth.signOut();
+    if (error) alert(`Could not sign out: ${error.message}`);
+    else {
+      user = null;
+      role = 'user';
+      location.hash = '#/';
+      await route();
+    }
+  };
+}
+
+// A missing profile must not stop the whole site. Database policies still
+// need to protect profile records and all privileged operations.
+async function loadUser() {
+  const { data, error } = await sb.auth.getSession();
+  if (error) throw error;
+
+  user = data.session?.user || null;
+  role = 'user';
+
+  if (!user) return;
+
+  const { data: profile, error: profileError } = await sb
+    .from('profiles')
+    .select('role,suspended')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error('MEDUSA profile lookup:', profileError);
+    user.suspended = false;
+    return;
+  }
+
+  if (profile) {
+    role = profile.role || 'user';
+    user.suspended = Boolean(profile.suspended);
+  } else {
+    user.suspended = false;
+  }
+}
+
+function home() {
+  if (!user) {
+    document.body.classList.add('welcome-mode');
+    root.innerHTML = `<nav>
+      <a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a>
+      <span class="sp"></span><a class="btn s" href="#/auth">Get Started</a>
+    </nav>
+    <main>
+      <section class="hero" style="padding:100px 10px 70px">
+        <div style="color:var(--gold);letter-spacing:.3em;font-size:12px;margin-bottom:20px">MEDUSA BY TYMSTAR</div>
+        <h1>Your Files.<br>Your Links.<br>Your Freedom.</h1>
+        <p>Welcome to MEDUSA, your simple and reliable file-sharing platform.
+        Upload images, videos, documents and music, then turn them into unique
+        links that you can access and share anywhere.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          <a href="#/auth" class="btn">Sign In / Create Account</a>
+          <a href="#/about" class="btn o">Discover MEDUSA</a>
+        </div>
+      </section>
+      <div class="grid">
+        <div class="glass stat"><b>01</b><span>Upload your files securely.</span></div>
+        <div class="glass stat"><b>02</b><span>Generate unique sharing links.</span></div>
+        <div class="glass stat"><b>03</b><span>Share and access your content anywhere.</span></div>
+      </div>
+      <section class="glass" style="text-align:center;margin-top:25px">
+        <h2>One Upload. One Link. Access Anywhere.</h2>
+        <p style="color:var(--mut);line-height:1.7;margin:12px 0 20px">Your digital content deserves a simpler way to move. Start using MEDUSA today.</p>
+        <a href="#/auth" class="btn">Get Started Today</a>
+      </section>
+    </main>${footer()}`;
+    return;
+  }
+
+  document.body.classList.remove('welcome-mode');
+  shell(`<section class="hero">
+    <h1>Your Files. Your Links. Your Freedom.</h1>
+    <p>Upload images, videos, documents and music. MEDUSA transforms your files into shareable links that anyone with permission can open.</p>
+    <button class="btn" id="jumpUpload">Upload Your Files</button>
+    <a class="btn o" href="#/about">Explore Features</a>
+  </section>
+  <section class="glass" id="up">
+    <div class="drop" id="drop" role="button" tabindex="0">
+      <div style="font-size:40px">⬆</div>
+      <h3>Drag &amp; drop files here, or tap to select</h3>
+      <p style="color:var(--mut);margin-top:8px;font-size:13px">Images · Videos · Documents · Audio — up to 50 MB each</p>
+    </div>
+    <input type="file" id="pick" multiple hidden>
+    <div id="list"></div>
+  </section>`);
+
+  $('#jumpUpload').onclick = () => $('#up').scrollIntoView({ behavior: 'smooth' });
+  const drop = $('#drop'), pick = $('#pick');
+  drop.onclick = () => pick.click();
+  drop.onkeydown = e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      pick.click();
+    }
+  };
+  pick.onchange = () => {
+    uploadFiles([...pick.files]);
+    pick.value = '';
+  };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('h'); };
+  drop.ondragleave = () => drop.classList.remove('h');
+  drop.ondrop = e => {
+    e.preventDefault();
+    drop.classList.remove('h');
+    uploadFiles([...e.dataTransfer.files]);
+  };
+}
+
+function uploadFiles(files) {
+  if (!user) { location.hash = '#/auth'; return; }
+  if (user.suspended) { alert('Your account is suspended.'); return; }
+  files.forEach(file => upOne(file));
+}
+
+async function upOne(file) {
   const list = $('#list');
   if (!list) return;
 
@@ -448,423 +301,433 @@ async function upOne(f) {
   el.className = 'row';
   list.prepend(el);
 
-  const kind = kindOf(f);
-
+  const kind = kindOf(file);
   if (!kind) {
-    el.innerHTML = `<span class="err">Unsupported file type: ${esc(f.name)}</span>`;
+    el.innerHTML = `<span class="err">Unsupported file type: ${esc(file.name)}</span>`;
     return;
   }
-
-  if (f.size > MAX) {
+  if (file.size > MAX) {
     el.innerHTML = `<span class="err">File exceeds the 50 MB limit.</span>`;
     return;
   }
-
-  if (f.size === 0) {
-    el.innerHTML = `<span class="err">File is empty.</span>`;
+  if (file.size === 0) {
+    el.innerHTML = `<span class="err">This file is empty.</span>`;
     return;
   }
 
-  el.innerHTML = `
-    <span class="n">
-      ${esc(f.name)}<br>
-      <small>${kind} · ${fmt(f.size)}</small>
-    </span>
-    <button class="btn o s" id="cancel">Cancel</button>
-    <div class="bar"><i></i></div>
-  `;
+  el.innerHTML = `<span class="n">${esc(file.name)}<br><small>${kind} · ${fmt(file.size)}</small></span><span class="status">Preparing upload...</span>`;
+  let uploadedPath = null;
 
   try {
-    const { data: { session }, error: sessionError } =
-      await sb.auth.getSession();
-
-    if (sessionError || !session) {
-      throw new Error('Please sign in again before uploading.');
-    }
+    const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+    if (sessionError) throw sessionError;
+    const session = sessionData.session;
+    if (!session) throw new Error('Your session has expired. Please sign in again.');
+    if (session.user.id !== user.id) throw new Error('Your login session changed. Refresh and try again.');
 
     const id = newId();
-    const path = `${user.id}/${id}-${f.name.replace(/[^\w.\-]/g, '_')}`;
+    const safeName = file.name.replace(/[^\w.\-]/g, '_').slice(0, 160);
+    const path = `${session.user.id}/${id}-${safeName}`;
 
-    const x = new XMLHttpRequest();
+    $('.status', el).textContent = 'Uploading file...';
+    const { data: uploaded, error: uploadError } = await sb.storage
+      .from(BUCKET)
+      .upload(path, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type || 'application/octet-stream'
+      });
+    if (uploadError) throw uploadError;
+    if (!uploaded?.path) throw new Error('Storage did not return the uploaded file path.');
+    uploadedPath = uploaded.path;
 
-    x.open(
-      'POST',
-      `${SB_URL}/storage/v1/object/${BUCKET}/${path}`
+    $('.status', el).textContent = 'Saving file information...';
+    const { error: databaseError } = await sb.from('files').insert({
+      id,
+      owner: session.user.id,
+      name: file.name,
+      kind,
+      mime: file.type || null,
+      size: file.size,
+      path: uploadedPath
+    });
+    if (databaseError) throw databaseError;
+
+    const url = linkOf(id);
+    el.innerHTML = `<span class="n">${esc(file.name)}<br><small>${kind} · ${fmt(file.size)}</small><br><a class="ok" href="${esc(url)}">${esc(url)}</a></span>
+      <button class="btn s" data-copy>Copy Link</button>
+      <a class="btn o s" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open</a>
+      <button class="btn o s" data-share>Share</button>`;
+    $('[data-copy]', el).onclick = async e => {
+      await copyText(url);
+      e.currentTarget.textContent = 'Copied ✓';
+    };
+    $('[data-share]', el).onclick = async () => {
+      if (navigator.share) {
+        try { await navigator.share({ title: file.name, url }); }
+        catch (shareError) { if (shareError.name !== 'AbortError') await copyText(url); }
+      } else {
+        await copyText(url);
+      }
+    };
+  } catch (error) {
+    console.error('MEDUSA upload error:', error);
+    if (uploadedPath) {
+      const { error: cleanupError } = await sb.storage.from(BUCKET).remove([uploadedPath]);
+      if (cleanupError) console.error('MEDUSA cleanup error:', cleanupError);
+    }
+    el.innerHTML = `<span class="n">${esc(file.name)}<br><small class="err">Upload failed: ${esc(error.message || 'Unknown error')}</small></span>`;
+  }
+}
+
+// Public viewing requires a carefully secured get_file RPC and Storage policies.
+// The RPC should return only active, public, non-expired records.
+async function viewer(id) {
+  root.innerHTML = '<div class="view"><div class="stage">Loading file...</div></div>';
+
+  const head = `<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span><button class="btn o s" id="sh">Share</button><span id="dl"></span></nav>`;
+
+  try {
+    const { data: result, error: rpcError } = await sb.rpc('get_file', { p_id: id });
+    if (rpcError) throw rpcError;
+
+    const file = Array.isArray(result) ? result[0] : result;
+    if (!file) {
+      root.innerHTML = `<div class="view">${head}<div class="stage" style="flex-direction:column;text-align:center">
+        <h1 style="font-size:72px;color:var(--gold)">404</h1><h2>Unable to find this file</h2>
+        <p class="err">This file may not exist, may have expired, or sharing may be disabled.</p>
+        <br><a class="btn" href="#/">Go to MEDUSA</a></div></div>`;
+      return;
+    }
+
+    if (!file.path || !file.name || !file.kind) throw new Error('The file record is incomplete.');
+
+    const { data: signedData, error: signedError } = await sb.storage
+      .from(BUCKET)
+      .createSignedUrl(file.path, 3600);
+    if (signedError) throw signedError;
+    if (!signedData?.signedUrl) throw new Error('Supabase did not return a viewing URL.');
+
+    const signedUrl = signedData.signedUrl;
+    let downloadUrl = null;
+
+    if (file.allow_download) {
+      const { data: downloadData, error: downloadError } = await sb.storage
+        .from(BUCKET)
+        .createSignedUrl(file.path, 3600, { download: file.name });
+      if (downloadError) console.error('MEDUSA download URL error:', downloadError);
+      else downloadUrl = downloadData?.signedUrl || null;
+    }
+
+    let content = '';
+    if (file.kind === 'image') {
+      content = `<img src="${esc(signedUrl)}" alt="${esc(file.name)}" id="im">`;
+    } else if (file.kind === 'video') {
+      content = `<video src="${esc(signedUrl)}" controls playsinline preload="metadata"></video>`;
+    } else if (file.kind === 'audio') {
+      content = `<div class="aud" id="au"><div class="disc"></div><h3>${esc(file.name)}</h3><audio src="${esc(signedUrl)}" controls preload="metadata"></audio></div>`;
+    } else if (file.name.toLowerCase().endsWith('.pdf')) {
+      content = '<iframe id="pf" title="PDF document"></iframe>';
+    } else if (file.name.toLowerCase().endsWith('.txt')) {
+      content = '<pre id="tx" style="white-space:pre-wrap;max-width:900px;width:100%" class="glass">Loading text file...</pre>';
+    } else {
+      content = `<div class="glass" style="text-align:center"><h3>${esc(file.name)}</h3>
+        <p style="color:var(--mut);margin:10px 0">In-browser preview isn't available for this format.</p>
+        ${downloadUrl ? '<p class="status">Use the Download button to save this file.</p>' : '<p class="err">Downloads are unavailable.</p>'}</div>`;
+    }
+
+    root.innerHTML = `<div class="view">${head}<div class="stage">${content}</div><footer>${esc(file.name)} · ${fmt(file.size)} · By TYMSTAR</footer></div>`;
+
+    $('#sh').onclick = async () => {
+      const shareUrl = location.href;
+      if (navigator.share) {
+        try { await navigator.share({ title: file.name, url: shareUrl }); }
+        catch (shareError) { if (shareError.name !== 'AbortError') await copyText(shareUrl); }
+      } else {
+        await copyText(shareUrl);
+        $('#sh').textContent = 'Link copied ✓';
+      }
+    };
+
+    if (downloadUrl) {
+      $('#dl').innerHTML = `<a class="btn s" href="${esc(downloadUrl)}" rel="noopener">Download</a>`;
+    }
+
+    if ($('#im')) {
+      $('#im').onclick = e => e.currentTarget.classList.toggle('z');
+      $('#im').ondblclick = e => e.currentTarget.requestFullscreen?.();
+    }
+    if ($('#au')) {
+      const audio = $('#au audio');
+      audio.onplay = () => $('#au').classList.add('p');
+      audio.onpause = audio.onended = () => $('#au').classList.remove('p');
+    }
+
+    if ($('#tx')) {
+      try {
+        const response = await fetch(signedUrl);
+        if (!response.ok) throw new Error('Could not retrieve the text file.');
+        $('#tx').textContent = await response.text();
+      } catch (error) {
+        if ($('#tx')) $('#tx').textContent = error.message;
+      }
+    }
+
+    if ($('#pf')) {
+      try {
+        const response = await fetch(signedUrl);
+        if (!response.ok) throw new Error('Could not retrieve the PDF.');
+        const blob = await response.blob();
+        const pdfObjectUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+        $('#pf').src = `${pdfObjectUrl}#toolbar=1`;
+      } catch (error) {
+        console.error('MEDUSA PDF error:', error);
+        if ($('#pf')) $('#pf').outerHTML = `<p class="err">${esc(error.message)}</p>`;
+      }
+    }
+  } catch (error) {
+    console.error('MEDUSA viewer error:', error);
+    root.innerHTML = `<div class="view">${head}<div class="stage" style="flex-direction:column;text-align:center">
+      <h2>Unable to open this file</h2><p class="err">${esc(error.message || 'A network or permission error occurred.')}</p>
+      <p class="status" style="margin-top:10px">The file may be unavailable, expired, or the sharing permissions may need attention.</p>
+      <br><a class="btn" href="#/">Return to MEDUSA</a></div></div>`;
+  }
+}
+
+function auth() {
+  let mode = 'in';
+  const draw = () => {
+    shell(`<div class="glass" style="max-width:400px;margin:40px auto">
+      <h2>${mode === 'in' ? 'Sign in' : 'Create account'}</h2>
+      <div style="display:grid;gap:12px">
+        <input id="em" type="email" placeholder="Email" autocomplete="email">
+        <input id="pw" type="password" placeholder="Password (min 8 chars)" autocomplete="${mode === 'in' ? 'current-password' : 'new-password'}">
+        <button class="btn" id="go">${mode === 'in' ? 'Sign in' : 'Sign up'}</button>
+        <a href="#" id="sw" style="color:var(--gold);font-size:13px">${mode === 'in' ? 'No account? Create one' : 'Have an account? Sign in'}</a>
+        <div id="m" class="err"></div>
+      </div></div>`);
+
+    $('#sw').onclick = e => {
+      e.preventDefault();
+      mode = mode === 'in' ? 'up' : 'in';
+      draw();
+    };
+
+    $('#go').onclick = async () => {
+      const button = $('#go');
+      const message = $('#m');
+      const email = $('#em').value.trim();
+      const password = $('#pw').value;
+      if (!email || !password) {
+        message.textContent = 'Enter your email and password.';
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Please wait...';
+      try {
+        const result = mode === 'in'
+          ? await sb.auth.signInWithPassword({ email, password })
+          : await sb.auth.signUp({ email, password });
+
+        if (result.error) throw result.error;
+
+        if (mode === 'up' && !result.data.session) {
+          message.className = 'ok';
+          message.textContent = 'Check your email to confirm your account, then sign in.';
+          button.disabled = false;
+          button.textContent = 'Sign up';
+          return;
+        }
+
+        await loadUser();
+        location.hash = '#/dashboard';
+        await route();
+      } catch (error) {
+        message.textContent = error.message || 'Authentication failed.';
+        button.disabled = false;
+        button.textContent = mode === 'in' ? 'Sign in' : 'Sign up';
+      }
+    };
+  };
+  draw();
+}
+
+async function dashboard() {
+  if (!user) { location.hash = '#/auth'; return; }
+  shell('<p class="status">Loading your files...</p>');
+
+  const { data, error } = await sb.from('files')
+    .select('id,owner,name,kind,size,views,created_at,expires_at,active,is_public,allow_download,path')
+    .eq('owner', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    shell(`<div class="glass"><h2>Dashboard could not load</h2><p class="err">${esc(error.message)}</p><button class="btn" id="retry">Try Again</button></div>`);
+    $('#retry').onclick = () => dashboard();
+    console.error('MEDUSA dashboard error:', error);
+    return;
+  }
+
+  const files = data || [];
+  let query = '', kindFilter = 'all';
+
+  const draw = () => {
+    const used = files.reduce((total, file) => total + Number(file.size || 0), 0);
+    const views = files.reduce((total, file) => total + Number(file.views || 0), 0);
+    const filtered = files.filter(file =>
+      (kindFilter === 'all' || file.kind === kindFilter) &&
+      (file.name || '').toLowerCase().includes(query)
     );
 
-    x.setRequestHeader('Authorization', 'Bearer ' + session.access_token);
-    x.setRequestHeader('apikey', SB_KEY);
-    x.setRequestHeader('x-upsert', 'false');
-    x.setRequestHeader('Content-Type', f.type || 'application/octet-stream');
+    shell(`<h2>Dashboard</h2>
+      <div class="grid">
+        <div class="glass stat"><b>${files.length}</b><span>Total files uploaded</span></div>
+        <div class="glass stat"><b>${fmt(used)}</b><span>Storage used</span></div>
+        <div class="glass stat"><b>${files.length}</b><span>Links generated</span></div>
+        <div class="glass stat"><b>${views}</b><span>Total views</span></div>
+      </div>
+      <div class="tools">
+        <input id="q" placeholder="Search your files" value="${esc(query)}">
+        <select id="k">${['all','image','video','document','audio'].map(value => `<option value="${value}" ${value === kindFilter ? 'selected' : ''}>${value}</option>`).join('')}</select>
+        <a class="btn" href="#/">Upload</a>
+      </div>
+      <div class="glass" id="fileList">
+        ${filtered.map(file => `<div class="row" data-id="${esc(file.id)}">
+          <span class="n">${esc(file.name)}<br><small>${esc(file.kind)} · ${fmt(file.size)} · ${file.created_at ? new Date(file.created_at).toLocaleDateString() : ''} · ${Number(file.views || 0)} views${file.expires_at ? ' · expires ' + new Date(file.expires_at).toLocaleDateString() : ''}</small></span>
+          <span class="tag">${file.active && file.is_public ? 'Live' : 'Disabled'}</span>
+          <button class="btn s" data-a="copy">Copy</button>
+          <a class="btn o s" href="#/view/${encodeURIComponent(file.id)}" target="_blank" rel="noopener noreferrer">Open</a>
+          <button class="btn o s" data-a="ren">Rename</button>
+          <button class="btn o s" data-a="tog">${file.active ? 'Disable' : 'Enable'}</button>
+          <button class="btn o s" data-a="dl">Downloads ${file.allow_download ? 'on' : 'off'}</button>
+          <button class="btn o s" data-a="exp">Expiry</button>
+          <button class="btn d s" data-a="del">Delete</button>
+        </div>`).join('') || '<p class="empty">No files found.</p>'}
+      </div>`);
 
-    x.upload.onprogress = e => {
-      if (e.lengthComputable) {
-        el.querySelector('.bar i').style.width =
-          (e.loaded / e.total * 100) + '%';
-      }
+    $('#q').oninput = e => {
+      query = e.target.value.toLowerCase();
+      const position = e.target.selectionStart;
+      draw();
+      $('#q').focus();
+      $('#q').setSelectionRange(position, position);
     };
+    $('#k').onchange = e => { kindFilter = e.target.value; draw(); };
 
-    el.querySelector('#cancel').onclick = () => x.abort();
+    document.querySelectorAll('[data-a]').forEach(button => {
+      button.onclick = async () => {
+        const row = button.closest('.row');
+        const file = files.find(item => item.id === row.dataset.id);
+        if (!file) return;
+        const action = button.dataset.a;
+        let patch = null;
 
-    x.onabort = () => {
-      el.querySelector('.bar')?.remove();
-      el.querySelector('#cancel')?.remove();
-      el.insertAdjacentHTML('beforeend',
-        '<span class="err">Cancelled</span>');
-    };
-
-    x.onerror = () => {
-      el.querySelector('.bar')?.remove();
-      el.insertAdjacentHTML('beforeend',
-        '<span class="err">Network error</span>');
-    };
-
-    x.onload = async () => {
-      if (x.status > 299) {
-        let message = 'Upload rejected by server.';
-        try {
-          message = JSON.parse(x.responseText).message || message;
-        } catch {}
-        el.querySelector('.bar')?.remove();
-        el.querySelector('#cancel')?.remove();
-        el.insertAdjacentHTML('beforeend',
-          `<span class="err">Upload failed: ${esc(message)}</span>`);
-        return;
-      }
-
-      const { error } = await sb.from('files').insert({
-        id,
-        owner: user.id,
-        name: f.name,
-        kind,
-        mime: f.type || null,
-        size: f.size,
-        path
-      });
-
-      if (error) {
-        await sb.storage.from(BUCKET).remove([path]);
-        el.querySelector('.bar')?.remove();
-        el.querySelector('#cancel')?.remove();
-        el.insertAdjacentHTML('beforeend',
-          `<span class="err">Database error: ${esc(error.message)}</span>`);
-        return;
-      }
-
-      const url = linkOf(id);
-
-      el.innerHTML = `
-        <span class="n">
-          ${esc(f.name)}<br>
-          <small>${kind} · ${fmt(f.size)}</small><br>
-          <a class="ok" href="${url}">${url}</a>
-        </span>
-        <button class="btn s" data-copy>Copy Link</button>
-        <a class="btn o s" href="${url}" target="_blank">Open</a>
-        <button class="btn o s" data-share>Share</button>
-      `;
-
-      el.querySelector('[data-copy]').onclick = async () => {
-        await navigator.clipboard.writeText(url);
-        el.querySelector('[data-copy]').textContent = 'Copied ✓';
-      };
-
-      el.querySelector('[data-share]').onclick = () => {
-        if (navigator.share) {
-          navigator.share({ title: f.name, url }).catch(() => {});
-        } else {
-          navigator.clipboard.writeText(url);
+        if (action === 'copy') {
+          await copyText(linkOf(file.id));
+          button.textContent = 'Copied ✓';
+          return;
+        }
+        if (action === 'ren') {
+          const name = prompt('New name', file.name);
+          if (name && name.trim()) patch = { name: name.trim() };
+        }
+        if (action === 'tog') patch = { active: !file.active };
+        if (action === 'dl') patch = { allow_download: !file.allow_download };
+        if (action === 'exp') {
+          const days = prompt('Expire after how many days? (blank = never)', '');
+          if (days !== null) {
+            if (days.trim() && (!Number.isFinite(Number(days)) || Number(days) <= 0)) {
+              alert('Enter a number of days greater than zero, or leave it blank.');
+              return;
+            }
+            patch = { expires_at: days.trim() ? new Date(Date.now() + Number(days) * 864e5).toISOString() : null };
+          }
+        }
+        if (action === 'del' && confirm('Delete this file and revoke its link permanently?')) {
+          const storageResult = await sb.storage.from(BUCKET).remove([file.path]);
+          if (storageResult.error) { alert(storageResult.error.message); return; }
+          const deleteResult = await sb.from('files').delete().eq('id', file.id).eq('owner', user.id);
+          if (deleteResult.error) { alert(deleteResult.error.message); return; }
+          files.splice(files.indexOf(file), 1);
+          draw();
+          return;
+        }
+        if (patch) {
+          const updateResult = await sb.from('files').update(patch).eq('id', file.id).eq('owner', user.id);
+          if (updateResult.error) { alert(updateResult.error.message); return; }
+          Object.assign(file, patch);
+          draw();
         }
       };
-    };
+    });
+  };
+  draw();
+}
 
-    x.send(f);
+async function admin() {
+  if (role !== 'admin') { location.hash = '#/'; return; }
+  const { data, error } = await sb.rpc('admin_stats');
+  if (error) {
+    shell(`<div class="glass"><h2>Admin dashboard unavailable</h2><p class="err">${esc(error.message)}</p></div>`);
+    return;
+  }
+  const stats = data || {};
+  shell(`<h2>Admin</h2><div class="grid">
+    ${[['Users',stats.users],['Files',stats.files],['Links',stats.files],['Storage',fmt(stats.storage)],['Views',stats.views],['Active links',stats.active],['Inactive links',stats.inactive]].map(([label,value]) => `<div class="glass stat"><b>${esc(value ?? 0)}</b><span>${esc(label)}</span></div>`).join('')}
+    </div><h3>Recent uploads</h3><div class="glass">
+    ${(stats.recent || []).map(file => `<div class="row"><span class="n">${esc(file.name)}<br><small>${esc(file.kind)} · ${fmt(file.size)} · ${file.created_at ? new Date(file.created_at).toLocaleString() : ''}</small></span><a class="btn o s" href="#/view/${encodeURIComponent(file.id)}" target="_blank" rel="noopener noreferrer">Open</a></div>`).join('') || '<p class="empty">No recent uploads.</p>'}
+    </div>`);
+}
 
+const about = () => shell(`<div class="glass">
+  <h2>About MEDUSA</h2>
+  <p style="line-height:1.7;color:var(--mut)">MEDUSA is a modern file-hosting and content-sharing platform built to make sharing digital content easier, faster and more accessible. From images and videos to documents and music, MEDUSA transforms uploaded files into unique links that can be opened and accessed through a dedicated viewing experience.<br><br>Built with simplicity, speed and accessibility in mind, MEDUSA provides a smarter way to store, manage and share digital content.<br><br>Created and powered by TYMSTAR.</p>
+  <h2 style="margin-top:24px">Our Mission</h2>
+  <p style="line-height:1.7;color:var(--mut)">Our mission is to simplify digital sharing by giving everyone a reliable way to transform files into accessible links without unnecessary complications.</p>
+</div>`);
+
+const page = name => shell(`<div class="glass"><h2>${({privacy:'Privacy Policy',terms:'Terms of Service',contact:'Contact'})[name] || 'Page'}</h2><p style="color:var(--mut);line-height:1.7">Replace this text with your own ${esc(name)} content before launch.</p></div>`);
+
+async function route() {
+  if (routeRunning) return;
+  routeRunning = true;
+  try {
+    await loadUser();
+    const hash = location.hash.slice(1) || '/';
+    const parts = hash.split('/');
+    const section = parts[1] || '';
+    const argument = parts[2] ? decodeURIComponent(parts[2]) : '';
+
+    if (section === 'view' && argument) {
+      await viewer(argument);
+    } else if (section === 'about') {
+      about();
+    } else if (section === 'auth') {
+      auth();
+    } else if (section === 'dashboard') {
+      await dashboard();
+    } else if (section === 'admin') {
+      await admin();
+    } else if (section === 'page') {
+      page(argument);
+    } else {
+      home();
+    }
+    window.scrollTo(0, 0);
   } catch (error) {
-    el.querySelector('.bar')?.remove();
-    el.querySelector('#cancel')?.remove();
-    el.insertAdjacentHTML('beforeend',
-      `<span class="err">${esc(error.message)}</span>`);
+    console.error('MEDUSA route error:', error);
+    root.innerHTML = `<main><div class="glass"><h2>MEDUSA could not load this page</h2><p class="err">${esc(error.message || 'A network error occurred.')}</p><button class="btn" id="routeRetry">Try Again</button></div></main>`;
+    $('#routeRetry').onclick = () => { routeRunning = false; route(); };
+  } finally {
+    routeRunning = false;
   }
 }
 
-
-
-// ---------- Viewer ----------
-async function viewer(id){
- root.innerHTML='<div class="view"><div class="stage">Loading file...</div></div>';
-
- // Retrieve the file record
- const {data:result,error:rpcError}=await sb.rpc('get_file',{p_id:id});
-
- console.log('MEDUSA file lookup:',result);
- console.log('MEDUSA lookup error:',rpcError);
-
- const f=Array.isArray(result)?result[0]:result;
-
- const head=`<nav>
- <a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a>
- <span class="sp"></span>
- <button class="btn o s" id="sh">Share</button>
- <span id="dl"></span>
- </nav>`;
-
- // Check whether the file exists
- if(rpcError || !f){
-  root.innerHTML=`<div class="view">${head}
-  <div class="stage" style="flex-direction:column;text-align:center">
-  <h1 style="font-size:72px;color:var(--gold)">404</h1>
-  <h2>Unable to find this file</h2>
-  <p class="err">${esc(rpcError?.message||'File not found, expired, or sharing is disabled.')}</p>
-  <br><a class="btn" href="#/">Go to MEDUSA</a>
-  </div></div>`;
-  console.error('MEDUSA file retrieval failed:',rpcError);
-  return;
- }
-
- // Generate the main viewing URL
- const {data:s,error:signedError}=await sb.storage
-  .from(BUCKET)
-  .createSignedUrl(f.path,3600);
-
- console.log('MEDUSA signed URL result:',s);
- console.log('MEDUSA signed URL error:',signedError);
-
- // Check signed URL generation
- if(signedError || !s?.signedUrl){
-  root.innerHTML=`<div class="view">${head}
-  <div class="stage" style="flex-direction:column;text-align:center">
-  <h2>File access problem</h2>
-  <p class="err">${esc(signedError?.message||'Could not generate the file link.')}</p>
-  <br><a class="btn" href="#/">Return Home</a>
-  </div></div>`;
-  console.error('MEDUSA signed URL failed:',signedError);
-  return;
- }
-
- const u=s.signedUrl;
-
- // Generate download URL only when downloads are enabled
- let sd=null;
-
- if(f.allow_download){
-  const downloadResult=await sb.storage
-   .from(BUCKET)
-   .createSignedUrl(f.path,3600,{download:f.name});
-
-  if(downloadResult.error){
-   console.error('MEDUSA download URL error:',downloadResult.error);
-  }else{
-   sd=downloadResult.data;
-  }
- }
-
- // Prepare the content preview
- let body='';
-
- if(f.kind==='image'){
-  body=`<img src="${u}" alt="${esc(f.name)}" id="im">`;
-
- }else if(f.kind==='video'){
-  body=`<video src="${u}" controls playsinline preload="metadata"></video>`;
-
- }else if(f.kind==='audio'){
-  body=`<div class="aud" id="au">
-  <div class="disc"></div>
-  <h3>${esc(f.name)}</h3>
-  <audio src="${u}" controls preload="metadata"></audio>
-  </div>`;
-
- }else if(f.name.toLowerCase().endsWith('.pdf')){
-  body=`<iframe id="pf" title="${esc(f.name)}"></iframe>`;
-
- }else if(f.name.toLowerCase().endsWith('.txt')){
-  body=`<pre id="tx" style="white-space:pre-wrap;max-width:900px;width:100%" class="glass">Loading text file...</pre>`;
-
- }else{
-  body=`<div class="glass" style="text-align:center">
-  <h3>${esc(f.name)}</h3>
-  <p style="color:var(--mut);margin:10px 0">
-  In-browser preview isn't available for this format.
-  </p>
-  ${sd?'':'<p class="err">Downloads are unavailable.</p>'}
-  </div>`;
- }
-
- // Display the file page
- root.innerHTML=`<div class="view">
- ${head}
- <div class="stage">${body}</div>
- <footer>${esc(f.name)} · ${fmt(f.size)} · By TYMSTAR</footer>
- </div>`;
-
- // Share button
- $('#sh').onclick=()=>{
-  if(navigator.share){
-   navigator.share({title:f.name,url:location.href});
-  }else{
-   navigator.clipboard.writeText(location.href);
-   $('#sh').textContent='Link copied ✓';
-  }
- };
-
- // Download button
- if(sd){
-  $('#dl').innerHTML=`<a class="btn s" href="${sd.signedUrl}">Download</a>`;
- }
-
- // Image zoom
- if($('#im')){
-  $('#im').onclick=e=>e.target.classList.toggle('z');
-  $('#im').ondblclick=e=>e.target.requestFullscreen?.();
- }
-
- // Audio animation
- if($('#au')){
-  const a=$('#au audio');
-  a.onplay=()=>$('#au').classList.add('p');
-  a.onpause=a.onended=()=>$('#au').classList.remove('p');
- }
-
- // Display TXT files
- if($('#tx')){
-  fetch(u)
-   .then(r=>{
-    if(!r.ok)throw new Error('Could not retrieve the text file.');
-    return r.text();
-   })
-   .then(t=>$('#tx').textContent=t)
-   .catch(e=>$('#tx').textContent=e.message);
- }
-
- // Display PDF files
- if($('#pf')){
-  fetch(u)
-   .then(r=>{
-    if(!r.ok)throw new Error('Could not retrieve the PDF.');
-    return r.blob();
-   })
-   .then(b=>{
-    const pdfURL=URL.createObjectURL(
-     new Blob([b],{type:'application/pdf'})
-    );
-    $('#pf').src=pdfURL+'#toolbar=1';
-   })
-   .catch(e=>{
-    console.error('MEDUSA PDF error:',e);
-    $('#pf').outerHTML=
-     `<p class="err">${esc(e.message)}</p>`;
-   });
- }
-}
-
-
-// ---------- Auth ----------
-function auth(){
- let mode='in';
- const draw=()=>{shell(`<div class="glass" style="max-width:400px;margin:40px auto"><h2>${mode==='in'?'Sign in':'Create account'}</h2>
- <div style="display:grid;gap:12px"><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password (min 8 chars)" autocomplete="${mode==='in'?'current-password':'new-password'}">
- <button class="btn" id="go">${mode==='in'?'Sign in':'Sign up'}</button><a href="#" id="sw" style="color:var(--gold);font-size:13px">${mode==='in'?'No account? Create one':'Have an account? Sign in'}</a><div id="m" class="err"></div></div></div>`);
- $('#sw').onclick=e=>{e.preventDefault();mode=mode==='in'?'up':'in';draw()};
- $('#go').onclick=async()=>{const em=$('#em').value.trim(),pw=$('#pw').value;
-  const r=mode==='in'?await sb.auth.signInWithPassword({email:em,password:pw}):await sb.auth.signUp({email:em,password:pw});
-  if(r.error){$('#m').textContent=r.error.message;return}
-  if(mode==='up'&&!r.data.session){$('#m').className='ok';$('#m').textContent='Check your email to confirm your account, then sign in.';return}
-  await loadUser();location.hash='#/dashboard'}};
- draw();
-}
-
-// ---------- Dashboard ----------
-async function dashboard(){
- if(!user){location.hash='#/auth';return}
- shell('<p>Loading…</p>');
-const {data:result,error}=await sb
-  .from('files')
-  .select('*')
-  .eq('owner',user.id)
-  .order('created_at',{ascending:false});
-
-if(error){
-  shell(`
-    <div class="glass">
-      <h2>Dashboard could not load</h2>
-      <p class="err">${esc(error.message)}</p>
-      <button class="btn" onclick="location.reload()">Try Again</button>
-    </div>
-  `);
-  console.error('MEDUSA dashboard error:',error);
-  return;
-}
-
-const files = result || [];
- let q='',k='all';
- const draw=()=>{
-  const used=files.reduce((a,f)=>a+f.size,0), views=files.reduce((a,f)=>a+f.views,0);
-  const list=files.filter(f=>(k==='all'||f.kind===k)&&f.name.toLowerCase().includes(q));
-  shell(`<h2>Dashboard</h2><div class="grid">
-  <div class="glass stat"><b>${files.length}</b><span>Total files uploaded</span></div>
-  <div class="glass stat"><b>${fmt(used)}</b><span>Storage used</span></div>
-  <div class="glass stat"><b>${files.length}</b><span>Links generated</span></div>
-  <div class="glass stat"><b>${views}</b><span>Total views</span></div></div>
-  <div class="tools"><input id="q" placeholder="Search your files" value="${esc(q)}"><select id="k">${['all','image','video','document','audio'].map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select><a class="btn" href="#/">Upload</a></div>
-  <div class="glass">${list.map(f=>`<div class="row" data-id="${f.id}"><span class="n">${esc(f.name)}<br><small>${f.kind} · ${fmt(f.size)} · ${new Date(f.created_at).toLocaleDateString()} · ${f.views} views${f.expires_at?' · expires '+new Date(f.expires_at).toLocaleDateString():''}</small></span>
-   <span class="tag">${f.active&&f.is_public?'Live':'Disabled'}</span>
-   <button class="btn s" data-a="copy">Copy</button><a class="btn o s" href="#/view/${f.id}" target="_blank">Open</a>
-   <button class="btn o s" data-a="ren">Rename</button><button class="btn o s" data-a="tog">${f.active?'Disable':'Enable'}</button>
-   <button class="btn o s" data-a="dl">Downloads ${f.allow_download?'on':'off'}</button><button class="btn o s" data-a="exp">Expiry</button><button class="btn d s" data-a="del">Delete</button></div>`).join('')||'<p style="color:var(--mut)">No files found.</p>'}</div>`);
-  $('#q').oninput=e=>{q=e.target.value.toLowerCase();draw();$('#q').focus();$('#q').setSelectionRange(99,99)};
-  $('#k').onchange=e=>{k=e.target.value;draw()};
-  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
-   const id=b.closest('.row').dataset.id,f=files.find(x=>x.id===id),a=b.dataset.a;let patch=null;
-   if(a==='copy'){navigator.clipboard.writeText(linkOf(id));b.textContent='Copied ✓';return}
-   if(a==='ren'){const n=prompt('New name',f.name);if(n&&n.trim())patch={name:n.trim()}}
-   if(a==='tog')patch={active:!f.active};
-   if(a==='dl')patch={allow_download:!f.allow_download};
-   if(a==='exp'){const d=prompt('Expire after how many days? (blank = never)','');if(d!==null)patch={expires_at:d.trim()?new Date(Date.now()+d*864e5).toISOString():null}}
-   if(a==='del'&&confirm('Delete this file and revoke its link permanently?')){
-    const r=await sb.storage.from(BUCKET).remove([f.path]);if(r.error)return alert(r.error.message);
-    const {error}=await sb.from('files').delete().eq('id',id);if(error)return alert(error.message);
-    files.splice(files.indexOf(f),1);draw();return}
-   if(patch){const {error}=await sb.from('files').update(patch).eq('id',id);if(error)return alert(error.message);Object.assign(f,patch);draw()}
-  });
- };
- draw();
-}
-
-// ---------- Admin ----------
-async function admin(){
- if(role!=='admin'){location.hash='#/';return}
- const {data:s,error}=await sb.rpc('admin_stats');
- if(error){shell(`<p class="err">${esc(error.message)}</p>`);return}
- shell(`<h2>Admin</h2><div class="grid">${[['Users',s.users],['Files',s.files],['Links',s.files],['Storage',fmt(s.storage)],['Views',s.views],['Active links',s.active],['Inactive links',s.inactive]].map(([a,b])=>`<div class="glass stat"><b>${b}</b><span>${a}</span></div>`).join('')}</div>
- <h3>Recent uploads</h3><div class="glass">${s.recent.map(f=>`<div class="row"><span class="n">${esc(f.name)}<br><small>${f.kind} · ${fmt(f.size)} · ${new Date(f.created_at).toLocaleString()}</small></span><a class="btn o s" href="#/view/${f.id}" target="_blank">Open</a></div>`).join('')}</div>`);
-}
-
-// ---------- Static pages ----------
-const about=()=>shell(`<div class="glass"><h2>About MEDUSA</h2><p style="line-height:1.7;color:var(--mut)">MEDUSA is a modern file-hosting and content-sharing platform built to make sharing digital content easier, faster and more accessible. From images and videos to documents and music, MEDUSA transforms uploaded files into unique links that can be opened and accessed through a dedicated viewing experience.<br><br>Built with simplicity, speed and accessibility in mind, MEDUSA provides a smarter way to store, manage and share digital content.<br><br>Created and powered by TYMSTAR.</p>
-<h2 style="margin-top:24px">Our Mission</h2><p style="line-height:1.7;color:var(--mut)">Our mission is to simplify digital sharing by giving everyone a reliable way to transform files into accessible links without unnecessary complications.</p></div>`);
-const page=n=>shell(`<div class="glass"><h2>${{privacy:'Privacy Policy',terms:'Terms of Service',contact:'Contact'}[n]||'Page'}</h2><p style="color:var(--mut);line-height:1.7">Replace this text with your own ${n} content before launch.</p></div>`);
-
-async function route(){
- await loadUser();
- const h=location.hash.slice(1)||'/', [,a,b]=h.split('/');
- if(a==='view'&&b)return viewer(b);
- ({'':home,about,auth,dashboard,admin}[a||''] ? ({'':home,about,auth,dashboard,admin}[a||''])() : a==='page'?page(b):home());
- window.scrollTo(0,0);
-}
-function setup(){
- root.innerHTML=`<main><div class="glass" style="max-width:480px;margin:60px auto"><h2>Connect Supabase</h2>
- <p style="color:var(--mut);font-size:13px;line-height:1.6;margin-bottom:14px">Enter your project URL and anon (public) key from Supabase → Project Settings → API. Never paste the service-role key.</p>
- <div style="display:grid;gap:12px"><input id="su" placeholder="https://xxxx.supabase.co"><input id="sk" placeholder="anon public key"><button class="btn" id="ss">Save &amp; continue</button><div id="sm" class="err"></div></div></div></main>`;
- $('#ss').onclick=()=>{
-  const url=$('#su').value.trim().replace(/\/+$/,''),key=$('#sk').value.trim();
-  if(!/^https?:\/\/.+/.test(url)||key.length<20){$('#sm').textContent='Enter a valid project URL and anon key.';return}
-  try{if(JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role'){$('#sm').textContent='That is a service-role key. Use the anon key instead.';return}}catch{}
-  localStorage.setItem('medusa_cfg',JSON.stringify({url,key}));location.reload();
- };
-}
-// ===== START MEDUSA =====
-addEventListener('hashchange',route);
+window.addEventListener('hashchange', route);
+sb.auth.onAuthStateChange(() => {
+  // Let Supabase finish its auth callback before refreshing the current route.
+  setTimeout(() => route(), 0);
+});
 route();
 </script>
 </body>
