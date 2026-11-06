@@ -36,6 +36,176 @@ input,select{background:rgba(255,255,255,.06);border:1px solid var(--bd);color:v
 .aud{width:min(460px,100%);text-align:center}.aud .disc{width:150px;height:150px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(var(--g),var(--gold),var(--g));animation:sp 6s linear infinite;animation-play-state:paused}
 .aud.p .disc{animation-play-state:running}@keyframes sp{to{transform:rotate(360deg)}}.aud audio{width:100%;margin-top:14px}
 .err{color:#ff8b8b;font-size:13px;margin-top:8px}.ok{color:var(--g2)}
+ 
+/* ===== MEDUSA RAINBOW & SPARKLE EFFECTS ===== */
+
+body {
+  overflow-x: hidden;
+  position: relative;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Animated rainbow aurora background */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(0,255,140,.13), transparent 35%),
+    radial-gradient(ellipse at 75% 20%, rgba(160,60,255,.13), transparent 35%),
+    radial-gradient(ellipse at 50% 80%, rgba(255,40,150,.10), transparent 35%),
+    radial-gradient(ellipse at 85% 75%, rgba(30,150,255,.12), transparent 35%);
+  filter: blur(35px);
+  animation: rainbowAurora 14s ease-in-out infinite alternate;
+}
+
+@keyframes rainbowAurora {
+  0% { transform: translate(-3%, -2%) rotate(0deg) scale(1); }
+  50% { transform: translate(3%, 2%) rotate(8deg) scale(1.08); }
+  100% { transform: translate(-2%, 4%) rotate(-8deg) scale(1.04); }
+}
+
+/* Sparkling stars */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .65;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 30% 75%, #10ffb0 50%, transparent 100%),
+    radial-gradient(2px 2px at 55% 15%, #f1d77a 50%, transparent 100%),
+    radial-gradient(3px 3px at 80% 45%, white 50%, transparent 100%),
+    radial-gradient(2px 2px at 92% 85%, #c77dff 50%, transparent 100%),
+    radial-gradient(2px 2px at 65% 65%, #50c8ff 50%, transparent 100%),
+    radial-gradient(2px 2px at 18% 90%, #ff70c5 50%, transparent 100%);
+  background-size: 350px 350px;
+  animation: sparkleMove 18s linear infinite,
+             sparkleBlink 3s ease-in-out infinite alternate;
+}
+
+@keyframes sparkleMove {
+  from { background-position: 0 0; }
+  to { background-position: 350px 350px; }
+}
+
+@keyframes sparkleBlink {
+  from { opacity: .2; }
+  to { opacity: .8; }
+}
+
+/* Welcome section */
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero h1 {
+  animation: titleReveal 1.2s ease both;
+  text-shadow: 0 0 35px rgba(16,160,112,.2);
+}
+
+.hero p {
+  animation: fadeUp 1.5s ease both;
+}
+
+/* Rainbow glow on main heading */
+.hero h1 {
+  background: linear-gradient(
+    90deg,
+    #ffffff,
+    #10d890,
+    #55caff,
+    #c77dff,
+    #f1d77a,
+    #ffffff
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: titleReveal 1.2s ease both,
+             rainbowText 8s linear infinite;
+}
+
+@keyframes rainbowText {
+  to { background-position: 300% center; }
+}
+
+@keyframes titleReveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Glass cards */
+.glass {
+  transition: border-color .35s ease,
+              transform .35s ease,
+              box-shadow .35s ease;
+}
+
+.glass:hover {
+  border-color: rgba(16,160,112,.45);
+  box-shadow: 0 0 30px rgba(16,160,112,.10);
+  transform: translateY(-3px);
+}
+
+/* Buttons */
+.btn {
+  transition: transform .3s ease,
+              box-shadow .3s ease,
+              filter .3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  filter: brightness(1.1);
+  box-shadow: 0 0 22px rgba(212,175,55,.35);
+}
+
+.btn:active {
+  transform: scale(.96);
+}
+
+/* Welcome page entrance */
+.welcome-mode main {
+  animation: pageEnter 1s ease both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  body::after,
+  .hero h1,
+  .hero p,
+  .welcome-mode main {
+    animation: none !important;
+  }
+
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
 footer{border-top:1px solid var(--bd);padding:26px 22px;text-align:center;color:var(--mut);font-size:13px}footer nav{all:unset}
 footer .fl{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0}footer .fl a:hover{color:var(--gold)}
 h2{margin-bottom:12px}.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);color:var(--mut)}
@@ -44,20 +214,14 @@ h2{margin-bottom:12px}.tag{font-size:11px;padding:2px 8px;border-radius:99px;bor
 <body>
 <div id="root"></div>
 <script>
-// ===== CONFIG: paste your Supabase project values =====
-const CFG=(()=>{try{return JSON.parse(localStorage.getItem('medusa_cfg')||'{}')}catch{return{}}})();
-const SB_URL=CFG.url||'YOUR_SUPABASE_URL', SB_KEY=CFG.key||'YOUR_SUPABASE_ANON_KEY';
-const CONFIGURED=/^https?:\/\/.+/.test(SB_URL)&&SB_KEY.length>20;
+// ===== MEDUSA CONFIGURATION =====
+const SB_URL='https://xmdspbvrurqgdhogiwxj.supabase.co';
+const SB_KEY='sb_publishable_k2kYheLD-ZKaXnfOR87yig_NHify9XL';
+
+const CONFIGURED=true;
 const MAX=50*1024*1024, BUCKET='medusa';
-const EXT={image:'jpg jpeg png gif webp svg',video:'mp4 mov webm mkv',document:'pdf doc docx txt ppt pptx xls xlsx',audio:'mp3 wav m4a aac flac ogg'};
-const sb=CONFIGURED?supabase.createClient(SB_URL,SB_KEY):null;
-const $=s=>document.querySelector(s), root=$('#root');
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB';
-const kindOf=f=>{const e=f.name.split('.').pop().toLowerCase();for(const k in EXT)if(EXT[k].split(' ').includes(e))return k;return null};
-const linkOf=id=>location.href.split('#')[0]+'#/view/'+id;
-const newId=()=>{const a=new Uint8Array(8);crypto.getRandomValues(a);return[...a].map(x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join('')};
-let user=null, role='user', pending=[];
+
+const sb=supabase.createClient(SB_URL,SB_KEY);
 
 function shell(inner){
  root.innerHTML=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span>
@@ -76,19 +240,117 @@ async function loadUser(){
 
 // ---------- Home / upload ----------
 function home(){
- shell(`<section class="hero"><h1>Your Files. Your Links. Your Freedom.</h1>
+
+ // Welcome page for visitors who are not signed in
+ if(!user){
+   document.body.classList.add('welcome-mode');
+  root.innerHTML=`
+  <nav>
+   <a href="#/" class="logo">
+    <b>MEDUSA</b>
+    <small>By TYMSTAR</small>
+   </a>
+   <span class="sp"></span>
+   <a class="btn s" href="#/auth">Get Started</a>
+  </nav>
+
+  <main>
+   <section class="hero" style="padding:100px 10px 70px">
+    <div style="color:var(--gold);letter-spacing:.3em;font-size:12px;margin-bottom:20px">
+     MEDUSA BY TYMSTAR
+    </div>
+
+    <h1>Your Files.<br>Your Links.<br>Your Freedom.</h1>
+
+    <p>
+     Welcome to MEDUSA, your simple and reliable file-sharing platform.
+     Upload images, videos, documents and music, then turn them into
+     unique links that you can access and share anywhere.
+    </p>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+     <a href="#/auth" class="btn">Sign In / Create Account</a>
+     <a href="#/about" class="btn o">Discover MEDUSA</a>
+    </div>
+   </section>
+
+   <div class="grid">
+    <div class="glass stat">
+     <b>01</b>
+     <span>Upload your files securely.</span>
+    </div>
+
+    <div class="glass stat">
+     <b>02</b>
+     <span>Generate unique sharing links.</span>
+    </div>
+
+    <div class="glass stat">
+     <b>03</b>
+     <span>Share and access your content anywhere.</span>
+    </div>
+   </div>
+
+   <section class="glass" style="text-align:center;margin-top:25px">
+    <h2>One Upload. One Link. Access Anywhere.</h2>
+    <p style="color:var(--mut);line-height:1.7;margin:12px 0 20px">
+     Your digital content deserves a simpler way to move.
+     Start using MEDUSA today.
+    </p>
+    <a href="#/auth" class="btn">Get Started Today</a>
+   </section>
+  </main>
+
+  <footer>
+   <b style="letter-spacing:.2em;color:var(--t)">MEDUSA</b>
+   <br>By TYMSTAR
+   <br><i>One Upload. One Link. Access Anywhere.</i>
+   <div class="fl">
+    <a href="#/">Home</a>
+    <a href="#/about">About</a>
+    <a href="#/page/privacy">Privacy Policy</a>
+    <a href="#/page/terms">Terms of Service</a>
+    <a href="#/page/contact">Contact</a>
+   </div>
+   © 2026 MEDUSA by TYMSTAR. All Rights Reserved.
+  </footer>
+  `;
+  return;
+ 
+  document.body.classList.remove('welcome-mode');
+ }
+
+ // Existing upload page for signed-in users
+ shell(`<section class="hero">
+ <h1>Your Files. Your Links. Your Freedom.</h1>
  <p>Upload images, videos, documents and music. MEDUSA instantly transforms your files into shareable links that anyone can open.</p>
  <button class="btn" onclick="document.getElementById('up').scrollIntoView({behavior:'smooth'})">Upload Your Files</button>
  <a class="btn o" href="#/about">Explore Features</a></section>
- <section class="glass" id="up"><div class="drop" id="drop"><div style="font-size:40px">⬆</div><h3>Drag &amp; drop files here, or tap to select</h3>
- <p style="color:var(--mut);margin-top:8px;font-size:13px">Images · Videos · Documents · Audio — up to 50 MB each</p></div>
+
+ <section class="glass" id="up">
+ <div class="drop" id="drop">
+  <div style="font-size:40px">⬆</div>
+  <h3>Drag &amp; drop files here, or tap to select</h3>
+  <p style="color:var(--mut);margin-top:8px;font-size:13px">
+   Images · Videos · Documents · Audio — up to 50 MB each
+  </p>
+ </div>
  <input type="file" id="pick" multiple hidden>
- ${user?'':'<p class="err" style="text-align:center">Sign in to upload. <a href="#/auth" style="color:var(--gold)">Sign in / Create account</a></p>'}
- <div id="list"></div></section>`);
+ <div id="list"></div>
+ </section>`);
+
  const d=$('#drop'),p=$('#pick');
- d.onclick=()=>p.click(); p.onchange=()=>{up([...p.files]);p.value=''};
- d.ondragover=e=>{e.preventDefault();d.classList.add('h')}; d.ondragleave=()=>d.classList.remove('h');
- d.ondrop=e=>{e.preventDefault();d.classList.remove('h');up([...e.dataTransfer.files])};
+
+ d.onclick=()=>p.click();
+ p.onchange=()=>{up([...p.files]);p.value=''};
+
+ d.ondragover=e=>{e.preventDefault();d.classList.add('h')};
+ d.ondragleave=()=>d.classList.remove('h');
+ d.ondrop=e=>{
+  e.preventDefault();
+  d.classList.remove('h');
+  up([...e.dataTransfer.files]);
+ };
 }
 function up(files){
  if(!user){location.hash='#/auth';return}
@@ -383,7 +645,9 @@ function setup(){
   localStorage.setItem('medusa_cfg',JSON.stringify({url,key}));location.reload();
  };
 }
-if(!CONFIGURED){setup()}else{addEventListener('hashchange',route);route()}
+// ===== START MEDUSA =====
+addEventListener('hashchange',route);
+route();
 </script>
 </body>
 </html>
