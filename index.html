@@ -221,7 +221,90 @@ const SB_KEY='sb_publishable_k2kYheLD-ZKaXnfOR87yig_NHify9XL';
 const CONFIGURED=true;
 const MAX=50*1024*1024, BUCKET='medusa';
 
-const sb=supabase.createClient(SB_URL,SB_KEY);
+const sb=supabase.createClient(https://xmdspbvrurqgdhogiwxj.supabase.co,sb_publishable_k2kYheLD-ZKaXnfOR87yig_NHify9XL);
+
+// ===== MEDUSA CORE HELPERS =====
+
+const root = document.getElementById('root');
+
+let user = null;
+let role = 'user';
+
+// Select an element
+function $(selector) {
+  return document.querySelector(selector);
+}
+
+// Safely display text inside HTML
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
+
+// Format file sizes
+function fmt(bytes) {
+  if (!Number.isFinite(Number(bytes))) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let size = Number(bytes);
+  let index = 0;
+
+  while (size >= 1024 && index < units.length - 1) {
+    size /= 1024;
+    index++;
+  }
+
+  return `${size.toFixed(index === 0 ? 0 : 2)} ${units[index]}`;
+}
+
+// Identify supported file types
+function kindOf(file) {
+  const type = (file.type || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+
+  if (type.startsWith('image/') ||
+      /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif|ico)$/.test(name)) {
+    return 'image';
+  }
+
+  if (type.startsWith('video/') ||
+      /\.(mp4|webm|mov|m4v|avi|mkv|ogv)$/.test(name)) {
+    return 'video';
+  }
+
+  if (type.startsWith('audio/') ||
+      /\.(mp3|wav|ogg|m4a|aac|flac|opus|wma)$/.test(name)) {
+    return 'audio';
+  }
+
+  if (
+    type.startsWith('application/') ||
+    type.startsWith('text/') ||
+    /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|7z|json|xml)$/.test(name)
+  ) {
+    return 'document';
+  }
+
+  return null;
+}
+
+// Generate a unique file ID
+function newId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 3 | 8)).toString(16);
+  });
+}
+
+// Generate the public MEDUSA viewing link
+function linkOf(id) {
+  return `${location.origin}${location.pathname}#/view/${encodeURIComponent(id)}`;
+}
 
 function shell(inner){
  root.innerHTML=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span>
@@ -314,13 +397,13 @@ function home(){
    </div>
    © 2026 MEDUSA by TYMSTAR. All Rights Reserved.
   </footer>
-  `;
+    `;
   return;
- 
-  document.body.classList.remove('welcome-mode');
  }
 
  // Existing upload page for signed-in users
+ document.body.classList.remove('welcome-mode');
+
  shell(`<section class="hero">
  <h1>Your Files. Your Links. Your Freedom.</h1>
  <p>Upload images, videos, documents and music. MEDUSA instantly transforms your files into shareable links that anyone can open.</p>
