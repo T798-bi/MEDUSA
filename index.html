@@ -357,37 +357,155 @@ function up(files){
  if(user.suspended){alert('Your account is suspended.');return}
  files.forEach(upOne);
 }
-async function upOne(f){
- const el=document.createElement('div');el.className='row';$('#list').prepend(el);
- const kind=kindOf(f); let bad=null;
- if(!kind)bad='Unsupported file type';
- else if(f.size>MAX)bad='Larger than 50 MB';
- else if(f.type&&['image','video','audio'].includes(kind)&&!f.type.startsWith(kind+'/')&&f.type!=='application/octet-stream')bad='File content type does not match its extension';
- else if(f.size===0)bad='File is empty';
- el.innerHTML=`<span class="n">${esc(f.name)}<br><small>${kind||'?'} · ${fmt(f.size)}</small></span>`;
- if(bad){el.innerHTML+=`<span class="err">✕ ${bad}</span>`;return}
- el.innerHTML+=`<button class="btn o s" id="c">Cancel</button><div class="bar"><i></i></div>`;
- const {data:{session}}=await sb.auth.getSession();
- const id=newId(), path=`${user.id}/${id}-${f.name.replace(/[^\w.\-]/g,'_')}`;
- const x=new XMLHttpRequest(); x.open('POST',`${SB_URL}/storage/v1/object/${BUCKET}/${path}`);
- x.setRequestHeader('Authorization','Bearer '+session.access_token);x.setRequestHeader('apikey',SB_KEY);x.setRequestHeader('x-upsert','false');x.setRequestHeader('Content-Type',f.type||'application/octet-stream');
- x.upload.onprogress=e=>{if(e.lengthComputable)el.querySelector('.bar i').style.width=(e.loaded/e.total*100)+'%'};
- el.querySelector('#c').onclick=()=>{x.abort()};
- x.onabort=()=>{el.querySelector('.bar')?.remove();el.querySelector('#c').outerHTML='<span class="err">Cancelled</span>'};
- x.onerror=()=>fail('Network error');
- const fail=m=>{el.querySelector('.bar')?.remove();el.querySelector('#c')?.remove();el.insertAdjacentHTML('beforeend',`<span class="err">✕ Upload failed: ${esc(m)}</span>`)};
- x.onload=async()=>{
-  if(x.status>299){let m='Rejected by server';try{m=JSON.parse(x.responseText).message}catch{}return fail(m)}
-  const {error}=await sb.from('files').insert({id,owner:user.id,name:f.name,kind,mime:f.type||null,size:f.size,path});
-  if(error){await sb.storage.from(BUCKET).remove([path]);return fail(error.message)}
-  const url=linkOf(id);
-  el.innerHTML=`<span class="n">${esc(f.name)}<br><small>${kind} · ${fmt(f.size)} · ${new Date().toLocaleDateString()}</small><br><a class="ok" href="${url}">${url}</a></span>
-  <button class="btn s" data-c>Copy Link</button><a class="btn o s" href="${url}" target="_blank">Open</a><button class="btn o s" data-s>Share</button>`;
-  el.querySelector('[data-c]').onclick=e=>{navigator.clipboard.writeText(url);e.target.textContent='Copied ✓'};
-  el.querySelector('[data-s]').onclick=()=>navigator.share?navigator.share({title:f.name,url}):navigator.clipboard.writeText(url);
- };
- x.send(f);
+
+async function upOne(f) {
+  const list = $('#list');
+  if (!list) return;
+
+  const el = document.createElement('div');
+  el.className = 'row';
+  list.prepend(el);
+
+  const kind = kindOf(f);
+
+  if (!kind) {
+    el.innerHTML = `<span class="err">Unsupported file type: ${esc(f.name)}</span>`;
+    return;
+  }
+
+  if (f.size > MAX) {
+    el.innerHTML = `<span class="err">File exceeds the 50 MB limit.</span>`;
+    return;
+  }
+
+  if (f.size === 0) {
+    el.innerHTML = `<span class="err">File is empty.</span>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <span class="n">
+      ${esc(f.name)}<br>
+      <small>${kind} · ${fmt(f.size)}</small>
+    </span>
+    <button class="btn o s" id="cancel">Cancel</button>
+    <div class="bar"><i></i></div>
+  `;
+
+  try {
+    const { data: { session }, error: sessionError } =
+      await sb.auth.getSession();
+
+    if (sessionError || !session) {
+      throw new Error('Please sign in again before uploading.');
+    }
+
+    const id = newId();
+    const path = `${user.id}/${id}-${f.name.replace(/[^\w.\-]/g, '_')}`;
+
+    const x = new XMLHttpRequest();
+
+    x.open(
+      'POST',
+      `${SB_URL}/storage/v1/object/${BUCKET}/${path}`
+    );
+
+    x.setRequestHeader('Authorization', 'Bearer ' + session.access_token);
+    x.setRequestHeader('apikey', SB_KEY);
+    x.setRequestHeader('x-upsert', 'false');
+    x.setRequestHeader('Content-Type', f.type || 'application/octet-stream');
+
+    x.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        el.querySelector('.bar i').style.width =
+          (e.loaded / e.total * 100) + '%';
+      }
+    };
+
+    el.querySelector('#cancel').onclick = () => x.abort();
+
+    x.onabort = () => {
+      el.querySelector('.bar')?.remove();
+      el.querySelector('#cancel')?.remove();
+      el.insertAdjacentHTML('beforeend',
+        '<span class="err">Cancelled</span>');
+    };
+
+    x.onerror = () => {
+      el.querySelector('.bar')?.remove();
+      el.insertAdjacentHTML('beforeend',
+        '<span class="err">Network error</span>');
+    };
+
+    x.onload = async () => {
+      if (x.status > 299) {
+        let message = 'Upload rejected by server.';
+        try {
+          message = JSON.parse(x.responseText).message || message;
+        } catch {}
+        el.querySelector('.bar')?.remove();
+        el.querySelector('#cancel')?.remove();
+        el.insertAdjacentHTML('beforeend',
+          `<span class="err">Upload failed: ${esc(message)}</span>`);
+        return;
+      }
+
+      const { error } = await sb.from('files').insert({
+        id,
+        owner: user.id,
+        name: f.name,
+        kind,
+        mime: f.type || null,
+        size: f.size,
+        path
+      });
+
+      if (error) {
+        await sb.storage.from(BUCKET).remove([path]);
+        el.querySelector('.bar')?.remove();
+        el.querySelector('#cancel')?.remove();
+        el.insertAdjacentHTML('beforeend',
+          `<span class="err">Database error: ${esc(error.message)}</span>`);
+        return;
+      }
+
+      const url = linkOf(id);
+
+      el.innerHTML = `
+        <span class="n">
+          ${esc(f.name)}<br>
+          <small>${kind} · ${fmt(f.size)}</small><br>
+          <a class="ok" href="${url}">${url}</a>
+        </span>
+        <button class="btn s" data-copy>Copy Link</button>
+        <a class="btn o s" href="${url}" target="_blank">Open</a>
+        <button class="btn o s" data-share>Share</button>
+      `;
+
+      el.querySelector('[data-copy]').onclick = async () => {
+        await navigator.clipboard.writeText(url);
+        el.querySelector('[data-copy]').textContent = 'Copied ✓';
+      };
+
+      el.querySelector('[data-share]').onclick = () => {
+        if (navigator.share) {
+          navigator.share({ title: f.name, url }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(url);
+        }
+      };
+    };
+
+    x.send(f);
+
+  } catch (error) {
+    el.querySelector('.bar')?.remove();
+    el.querySelector('#cancel')?.remove();
+    el.insertAdjacentHTML('beforeend',
+      `<span class="err">${esc(error.message)}</span>`);
+  }
 }
+
 
 
 // ---------- Viewer ----------
@@ -578,7 +696,25 @@ function auth(){
 async function dashboard(){
  if(!user){location.hash='#/auth';return}
  shell('<p>Loading…</p>');
- const {data:files=[]}=await sb.from('files').select('*').eq('owner',user.id).order('created_at',{ascending:false});
+const {data:result,error}=await sb
+  .from('files')
+  .select('*')
+  .eq('owner',user.id)
+  .order('created_at',{ascending:false});
+
+if(error){
+  shell(`
+    <div class="glass">
+      <h2>Dashboard could not load</h2>
+      <p class="err">${esc(error.message)}</p>
+      <button class="btn" onclick="location.reload()">Try Again</button>
+    </div>
+  `);
+  console.error('MEDUSA dashboard error:',error);
+  return;
+}
+
+const files = result || [];
  let q='',k='all';
  const draw=()=>{
   const used=files.reduce((a,f)=>a+f.size,0), views=files.reduce((a,f)=>a+f.views,0);
