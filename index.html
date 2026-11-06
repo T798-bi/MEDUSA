@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MEDUSA by TYMSTAR — One Upload. One Link. Access Anywhere.</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--g:#0b6b4a;--g2:#10a070;--gold:#d4af37;--gold2:#f1d77a;--bg:#070908;--card:rgba(255,255,255,.04);--bd:rgba(255,255,255,.09);--t:#f4f6f5;--mut:#9aa6a1}
+*{box-sizing:border-box;margin:0}html,body{background:var(--bg);color:var(--t);font-family:Inter,system-ui,sans-serif;min-height:100%}
+body{background:radial-gradient(900px 500px at 15% -10%,rgba(11,107,74,.35),transparent),radial-gradient(700px 400px at 100% 10%,rgba(11,107,74,.18),transparent),var(--bg);background-attachment:fixed}
+a{color:inherit;text-decoration:none}
+nav{display:flex;align-items:center;gap:18px;padding:14px 22px;border-bottom:1px solid var(--bd);backdrop-filter:blur(14px);position:sticky;top:0;z-index:5;background:rgba(7,9,8,.7);flex-wrap:wrap}
+.logo b{font-size:20px;letter-spacing:.2em}.logo small{display:block;font-size:10px;color:var(--gold);letter-spacing:.15em}
+nav .sp{flex:1}nav a.l{color:var(--mut);font-size:14px}nav a.l:hover{color:var(--gold)}
+.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14110a;border:0;padding:10px 18px;border-radius:999px;font-weight:600;cursor:pointer;font-size:14px;transition:.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(212,175,55,.3)}
+.btn.o{background:transparent;color:var(--t);border:1px solid var(--bd)}.btn.o:hover{border-color:var(--gold);color:var(--gold);box-shadow:none}
+.btn.s{padding:6px 12px;font-size:12px}.btn.d{background:#7a1f1f;color:#fff}
+main{max-width:1100px;margin:0 auto;padding:28px 18px 60px}
+.hero{text-align:center;padding:40px 0 24px}.hero h1{font-size:clamp(30px,6vw,56px);line-height:1.1;background:linear-gradient(90deg,#fff,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:620px;margin:16px auto 24px;line-height:1.6}
+.glass{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:22px;backdrop-filter:blur(12px)}
+.drop{border:2px dashed rgba(16,160,112,.5);border-radius:20px;padding:44px 16px;text-align:center;cursor:pointer;transition:.2s}
+.drop.h,.drop:hover{border-color:var(--gold);background:rgba(212,175,55,.05)}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.row .n{flex:1;min-width:160px;word-break:break-all}.row small{color:var(--mut)}
+.bar{height:6px;background:var(--bd);border-radius:9px;overflow:hidden;flex-basis:100%}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g2),var(--gold))}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0}
+.stat b{font-size:28px;color:var(--gold);display:block}.stat span{color:var(--mut);font-size:13px}
+input,select{background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--t);padding:10px 14px;border-radius:12px;font-size:14px;max-width:100%}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.tools input{flex:1;min-width:160px}
+.view{min-height:100vh;display:flex;flex-direction:column}.stage{flex:1;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+.stage img{max-width:100%;max-height:78vh;border-radius:12px;cursor:zoom-in;transition:transform .2s}.stage img.z{transform:scale(2);cursor:zoom-out}
+.stage video{max-width:100%;max-height:78vh;border-radius:12px}.stage iframe{width:100%;height:80vh;border:0;border-radius:12px;background:#fff}
+.aud{width:min(460px,100%);text-align:center}.aud .disc{width:150px;height:150px;border-radius:50%;margin:0 auto 18px;background:conic-gradient(var(--g),var(--gold),var(--g));animation:sp 6s linear infinite;animation-play-state:paused}
+.aud.p .disc{animation-play-state:running}@keyframes sp{to{transform:rotate(360deg)}}.aud audio{width:100%;margin-top:14px}
+.err{color:#ff8b8b;font-size:13px;margin-top:8px}.ok{color:var(--g2)}
+footer{border-top:1px solid var(--bd);padding:26px 22px;text-align:center;color:var(--mut);font-size:13px}footer nav{all:unset}
+footer .fl{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:12px 0}footer .fl a:hover{color:var(--gold)}
+h2{margin-bottom:12px}.tag{font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--bd);color:var(--mut)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ===== CONFIG: paste your Supabase project values =====
+const CFG=(()=>{try{return JSON.parse(localStorage.getItem('medusa_cfg')||'{}')}catch{return{}}})();
+const SB_URL=CFG.url||'YOUR_SUPABASE_URL', SB_KEY=CFG.key||'YOUR_SUPABASE_ANON_KEY';
+const CONFIGURED=/^https?:\/\/.+/.test(SB_URL)&&SB_KEY.length>20;
+const MAX=50*1024*1024, BUCKET='medusa';
+const EXT={image:'jpg jpeg png gif webp svg',video:'mp4 mov webm mkv',document:'pdf doc docx txt ppt pptx xls xlsx',audio:'mp3 wav m4a aac flac ogg'};
+const sb=CONFIGURED?supabase.createClient(SB_URL,SB_KEY):null;
+const $=s=>document.querySelector(s), root=$('#root');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':b<1073741824?(b/1048576).toFixed(1)+' MB':(b/1073741824).toFixed(2)+' GB';
+const kindOf=f=>{const e=f.name.split('.').pop().toLowerCase();for(const k in EXT)if(EXT[k].split(' ').includes(e))return k;return null};
+const linkOf=id=>location.href.split('#')[0]+'#/view/'+id;
+const newId=()=>{const a=new Uint8Array(8);crypto.getRandomValues(a);return[...a].map(x=>'abcdefghijkmnpqrstuvwxyz23456789'[x%32]).join('')};
+let user=null, role='user', pending=[];
+
+function shell(inner){
+ root.innerHTML=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span>
+ <a class="l" href="#/">Home</a><a class="l" href="#/about">About</a><a class="l" href="#/dashboard">Dashboard</a>${role==='admin'?'<a class="l" href="#/admin">Admin</a>':''}
+ ${user?'<button class="btn o s" id="out">Sign out</button>':'<a class="btn s" href="#/auth">Sign in</a>'}</nav>
+ <main>${inner}</main>
+ <footer><b style="letter-spacing:.2em;color:var(--t)">MEDUSA</b><br>By TYMSTAR<br><i>One Upload. One Link. Access Anywhere.</i>
+ <div class="fl"><a href="#/">Home</a><a href="#/about">About</a><a href="#/">Upload</a><a href="#/dashboard">Dashboard</a><a href="#/page/privacy">Privacy Policy</a><a href="#/page/terms">Terms of Service</a><a href="#/page/contact">Contact</a></div>
+ © 2026 MEDUSA by TYMSTAR. All Rights Reserved.</footer>`;
+ const o=$('#out'); if(o)o.onclick=async()=>{await sb.auth.signOut();location.hash='#/'};
+}
+async function loadUser(){
+ const {data:{session}}=await sb.auth.getSession(); user=session?.user||null; role='user';
+ if(user){const {data}=await sb.from('profiles').select('role,suspended').eq('id',user.id).single(); if(data){role=data.role; user.suspended=data.suspended}}
+}
+
+// ---------- Home / upload ----------
+function home(){
+ shell(`<section class="hero"><h1>Your Files. Your Links. Your Freedom.</h1>
+ <p>Upload images, videos, documents and music. MEDUSA instantly transforms your files into shareable links that anyone can open.</p>
+ <button class="btn" onclick="document.getElementById('up').scrollIntoView({behavior:'smooth'})">Upload Your Files</button>
+ <a class="btn o" href="#/about">Explore Features</a></section>
+ <section class="glass" id="up"><div class="drop" id="drop"><div style="font-size:40px">⬆</div><h3>Drag &amp; drop files here, or tap to select</h3>
+ <p style="color:var(--mut);margin-top:8px;font-size:13px">Images · Videos · Documents · Audio — up to 50 MB each</p></div>
+ <input type="file" id="pick" multiple hidden>
+ ${user?'':'<p class="err" style="text-align:center">Sign in to upload. <a href="#/auth" style="color:var(--gold)">Sign in / Create account</a></p>'}
+ <div id="list"></div></section>`);
+ const d=$('#drop'),p=$('#pick');
+ d.onclick=()=>p.click(); p.onchange=()=>{up([...p.files]);p.value=''};
+ d.ondragover=e=>{e.preventDefault();d.classList.add('h')}; d.ondragleave=()=>d.classList.remove('h');
+ d.ondrop=e=>{e.preventDefault();d.classList.remove('h');up([...e.dataTransfer.files])};
+}
+function up(files){
+ if(!user){location.hash='#/auth';return}
+ if(user.suspended){alert('Your account is suspended.');return}
+ files.forEach(upOne);
+}
+async function upOne(f){
+ const el=document.createElement('div');el.className='row';$('#list').prepend(el);
+ const kind=kindOf(f); let bad=null;
+ if(!kind)bad='Unsupported file type';
+ else if(f.size>MAX)bad='Larger than 50 MB';
+ else if(f.type&&['image','video','audio'].includes(kind)&&!f.type.startsWith(kind+'/')&&f.type!=='application/octet-stream')bad='File content type does not match its extension';
+ else if(f.size===0)bad='File is empty';
+ el.innerHTML=`<span class="n">${esc(f.name)}<br><small>${kind||'?'} · ${fmt(f.size)}</small></span>`;
+ if(bad){el.innerHTML+=`<span class="err">✕ ${bad}</span>`;return}
+ el.innerHTML+=`<button class="btn o s" id="c">Cancel</button><div class="bar"><i></i></div>`;
+ const {data:{session}}=await sb.auth.getSession();
+ const id=newId(), path=`${user.id}/${id}-${f.name.replace(/[^\w.\-]/g,'_')}`;
+ const x=new XMLHttpRequest(); x.open('POST',`${SB_URL}/storage/v1/object/${BUCKET}/${path}`);
+ x.setRequestHeader('Authorization','Bearer '+session.access_token);x.setRequestHeader('apikey',SB_KEY);x.setRequestHeader('x-upsert','false');x.setRequestHeader('Content-Type',f.type||'application/octet-stream');
+ x.upload.onprogress=e=>{if(e.lengthComputable)el.querySelector('.bar i').style.width=(e.loaded/e.total*100)+'%'};
+ el.querySelector('#c').onclick=()=>{x.abort()};
+ x.onabort=()=>{el.querySelector('.bar')?.remove();el.querySelector('#c').outerHTML='<span class="err">Cancelled</span>'};
+ x.onerror=()=>fail('Network error');
+ const fail=m=>{el.querySelector('.bar')?.remove();el.querySelector('#c')?.remove();el.insertAdjacentHTML('beforeend',`<span class="err">✕ Upload failed: ${esc(m)}</span>`)};
+ x.onload=async()=>{
+  if(x.status>299){let m='Rejected by server';try{m=JSON.parse(x.responseText).message}catch{}return fail(m)}
+  const {error}=await sb.from('files').insert({id,owner:user.id,name:f.name,kind,mime:f.type||null,size:f.size,path});
+  if(error){await sb.storage.from(BUCKET).remove([path]);return fail(error.message)}
+  const url=linkOf(id);
+  el.innerHTML=`<span class="n">${esc(f.name)}<br><small>${kind} · ${fmt(f.size)} · ${new Date().toLocaleDateString()}</small><br><a class="ok" href="${url}">${url}</a></span>
+  <button class="btn s" data-c>Copy Link</button><a class="btn o s" href="${url}" target="_blank">Open</a><button class="btn o s" data-s>Share</button>`;
+  el.querySelector('[data-c]').onclick=e=>{navigator.clipboard.writeText(url);e.target.textContent='Copied ✓'};
+  el.querySelector('[data-s]').onclick=()=>navigator.share?navigator.share({title:f.name,url}):navigator.clipboard.writeText(url);
+ };
+ x.send(f);
+}
+
+// ---------- Viewer ----------
+async function viewer(id){
+ root.innerHTML='<div class="view"><div class="stage">Loading…</div></div>';
+ const {data:f}=await sb.rpc('get_file',{p_id:id});
+ const head=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span><button class="btn o s" id="sh">Share</button><span id="dl"></span></nav>`;
+ if(!f){root.innerHTML=`<div class="view">${head}<div class="stage" style="flex-direction:column;text-align:center"><h1 style="font-size:72px;color:var(--gold)">404</h1><p style="color:var(--mut)">This file doesn’t exist, has expired, or the owner has disabled sharing.</p><br><a class="btn" href="#/">Go to MEDUSA</a></div></div>`;return}
+ const {data:s,error}=await sb.storage.from(BUCKET).createSignedUrl(f.path,3600);
+ const {data:sd}=f.allow_download?await sb.storage.from(BUCKET).createSignedUrl(f.path,3600,{download:f.name}):{data:null};
+ const u=s?.signedUrl; let body='';
+ if(!u)body=`<p class="err">Could not load file: ${esc(error?.message||'')}</p>`;
+ else if(f.kind==='image')body=`<img src="${u}" alt="${esc(f.name)}" id="im">`;
+ else if(f.kind==='video')body=`<video src="${u}" controls playsinline preload="metadata"></video>`;
+ else if(f.kind==='audio')body=`<div class="aud" id="au"><div class="disc"></div><h3>${esc(f.name)}</h3><audio src="${u}" controls preload="metadata"></audio></div>`;
+ else if(f.name.toLowerCase().endsWith('.pdf'))body=`<iframe id="pf" title="${esc(f.name)}"></iframe>`;
+ else if(f.name.toLowerCase().endsWith('.txt'))body=`<pre id="tx" style="white-space:pre-wrap;max-width:900px;width:100%" class="glass">Loading…</pre>`;
+ else body=`<div class="glass" style="text-align:center"><h3>${esc(f.name)}</h3><p style="color:var(--mut);margin:10px 0">In-browser preview isn’t available for this format.</p>${sd?'':'<p class="err">Downloads are disabled by the owner.</p>'}</div>`;
+ root.innerHTML=`<div class="view">${head}<div class="stage">${body}</div><footer>${esc(f.name)} · ${fmt(f.size)} · By TYMSTAR</footer></div>`;
+ $('#sh').onclick=()=>navigator.share?navigator.share({title:f.name,url:location.href}):(navigator.clipboard.writeText(location.href),$('#sh').textContent='Link copied ✓');
+ if(sd)$('#dl').innerHTML=`<a class="btn s" href="${sd.signedUrl}">Download</a>`;
+ if($('#im'))$('#im').onclick=e=>e.target.classList.toggle('z');
+ if($('#im'))$('#im').ondblclick=e=>e.target.requestFullscreen?.();
+ if($('#au')){const a=$('#au audio');a.onplay=()=>$('#au').classList.add('p');a.onpause=a.onended=()=>$('#au').classList.remove('p')}
+ if($('#tx'))fetch(u).then(r=>r.text()).then(t=>$('#tx').textContent=t);
+ if($('#pf'))fetch(u).then(r=>r.blob()).then(b=>{$('#pf').src=URL.createObjectURL(new Blob([b],{type:'application/pdf'}))+'#toolbar=1'}).catch(()=>{$('#pf').outerHTML='<p class="err">Could not load this PDF.</p>'});
+}
+
+// ---------- Auth ----------
+function auth(){
+ let mode='in';
+ const draw=()=>{shell(`<div class="glass" style="max-width:400px;margin:40px auto"><h2>${mode==='in'?'Sign in':'Create account'}</h2>
+ <div style="display:grid;gap:12px"><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Password (min 8 chars)" autocomplete="${mode==='in'?'current-password':'new-password'}">
+ <button class="btn" id="go">${mode==='in'?'Sign in':'Sign up'}</button><a href="#" id="sw" style="color:var(--gold);font-size:13px">${mode==='in'?'No account? Create one':'Have an account? Sign in'}</a><div id="m" class="err"></div></div></div>`);
+ $('#sw').onclick=e=>{e.preventDefault();mode=mode==='in'?'up':'in';draw()};
+ $('#go').onclick=async()=>{const em=$('#em').value.trim(),pw=$('#pw').value;
+  const r=mode==='in'?await sb.auth.signInWithPassword({email:em,password:pw}):await sb.auth.signUp({email:em,password:pw});
+  if(r.error){$('#m').textContent=r.error.message;return}
+  if(mode==='up'&&!r.data.session){$('#m').className='ok';$('#m').textContent='Check your email to confirm your account, then sign in.';return}
+  await loadUser();location.hash='#/dashboard'}};
+ draw();
+}
+
+// ---------- Dashboard ----------
+async function dashboard(){
+ if(!user){location.hash='#/auth';return}
+ shell('<p>Loading…</p>');
+ const {data:files=[]}=await sb.from('files').select('*').eq('owner',user.id).order('created_at',{ascending:false});
+ let q='',k='all';
+ const draw=()=>{
+  const used=files.reduce((a,f)=>a+f.size,0), views=files.reduce((a,f)=>a+f.views,0);
+  const list=files.filter(f=>(k==='all'||f.kind===k)&&f.name.toLowerCase().includes(q));
+  shell(`<h2>Dashboard</h2><div class="grid">
+  <div class="glass stat"><b>${files.length}</b><span>Total files uploaded</span></div>
+  <div class="glass stat"><b>${fmt(used)}</b><span>Storage used</span></div>
+  <div class="glass stat"><b>${files.length}</b><span>Links generated</span></div>
+  <div class="glass stat"><b>${views}</b><span>Total views</span></div></div>
+  <div class="tools"><input id="q" placeholder="Search your files" value="${esc(q)}"><select id="k">${['all','image','video','document','audio'].map(x=>`<option ${x===k?'selected':''}>${x}</option>`).join('')}</select><a class="btn" href="#/">Upload</a></div>
+  <div class="glass">${list.map(f=>`<div class="row" data-id="${f.id}"><span class="n">${esc(f.name)}<br><small>${f.kind} · ${fmt(f.size)} · ${new Date(f.created_at).toLocaleDateString()} · ${f.views} views${f.expires_at?' · expires '+new Date(f.expires_at).toLocaleDateString():''}</small></span>
+   <span class="tag">${f.active&&f.is_public?'Live':'Disabled'}</span>
+   <button class="btn s" data-a="copy">Copy</button><a class="btn o s" href="#/view/${f.id}" target="_blank">Open</a>
+   <button class="btn o s" data-a="ren">Rename</button><button class="btn o s" data-a="tog">${f.active?'Disable':'Enable'}</button>
+   <button class="btn o s" data-a="dl">Downloads ${f.allow_download?'on':'off'}</button><button class="btn o s" data-a="exp">Expiry</button><button class="btn d s" data-a="del">Delete</button></div>`).join('')||'<p style="color:var(--mut)">No files found.</p>'}</div>`);
+  $('#q').oninput=e=>{q=e.target.value.toLowerCase();draw();$('#q').focus();$('#q').setSelectionRange(99,99)};
+  $('#k').onchange=e=>{k=e.target.value;draw()};
+  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
+   const id=b.closest('.row').dataset.id,f=files.find(x=>x.id===id),a=b.dataset.a;let patch=null;
+   if(a==='copy'){navigator.clipboard.writeText(linkOf(id));b.textContent='Copied ✓';return}
+   if(a==='ren'){const n=prompt('New name',f.name);if(n&&n.trim())patch={name:n.trim()}}
+   if(a==='tog')patch={active:!f.active};
+   if(a==='dl')patch={allow_download:!f.allow_download};
+   if(a==='exp'){const d=prompt('Expire after how many days? (blank = never)','');if(d!==null)patch={expires_at:d.trim()?new Date(Date.now()+d*864e5).toISOString():null}}
+   if(a==='del'&&confirm('Delete this file and revoke its link permanently?')){
+    const r=await sb.storage.from(BUCKET).remove([f.path]);if(r.error)return alert(r.error.message);
+    const {error}=await sb.from('files').delete().eq('id',id);if(error)return alert(error.message);
+    files.splice(files.indexOf(f),1);draw();return}
+   if(patch){const {error}=await sb.from('files').update(patch).eq('id',id);if(error)return alert(error.message);Object.assign(f,patch);draw()}
+  });
+ };
+ draw();
+}
+
+// ---------- Admin ----------
+async function admin(){
+ if(role!=='admin'){location.hash='#/';return}
+ const {data:s,error}=await sb.rpc('admin_stats');
+ if(error){shell(`<p class="err">${esc(error.message)}</p>`);return}
+ shell(`<h2>Admin</h2><div class="grid">${[['Users',s.users],['Files',s.files],['Links',s.files],['Storage',fmt(s.storage)],['Views',s.views],['Active links',s.active],['Inactive links',s.inactive]].map(([a,b])=>`<div class="glass stat"><b>${b}</b><span>${a}</span></div>`).join('')}</div>
+ <h3>Recent uploads</h3><div class="glass">${s.recent.map(f=>`<div class="row"><span class="n">${esc(f.name)}<br><small>${f.kind} · ${fmt(f.size)} · ${new Date(f.created_at).toLocaleString()}</small></span><a class="btn o s" href="#/view/${f.id}" target="_blank">Open</a></div>`).join('')}</div>`);
+}
+
+// ---------- Static pages ----------
+const about=()=>shell(`<div class="glass"><h2>About MEDUSA</h2><p style="line-height:1.7;color:var(--mut)">MEDUSA is a modern file-hosting and content-sharing platform built to make sharing digital content easier, faster and more accessible. From images and videos to documents and music, MEDUSA transforms uploaded files into unique links that can be opened and accessed through a dedicated viewing experience.<br><br>Built with simplicity, speed and accessibility in mind, MEDUSA provides a smarter way to store, manage and share digital content.<br><br>Created and powered by TYMSTAR.</p>
+<h2 style="margin-top:24px">Our Mission</h2><p style="line-height:1.7;color:var(--mut)">Our mission is to simplify digital sharing by giving everyone a reliable way to transform files into accessible links without unnecessary complications.</p></div>`);
+const page=n=>shell(`<div class="glass"><h2>${{privacy:'Privacy Policy',terms:'Terms of Service',contact:'Contact'}[n]||'Page'}</h2><p style="color:var(--mut);line-height:1.7">Replace this text with your own ${n} content before launch.</p></div>`);
+
+async function route(){
+ await loadUser();
+ const h=location.hash.slice(1)||'/', [,a,b]=h.split('/');
+ if(a==='view'&&b)return viewer(b);
+ ({'':home,about,auth,dashboard,admin}[a||''] ? ({'':home,about,auth,dashboard,admin}[a||''])() : a==='page'?page(b):home());
+ window.scrollTo(0,0);
+}
+function setup(){
+ root.innerHTML=`<main><div class="glass" style="max-width:480px;margin:60px auto"><h2>Connect Supabase</h2>
+ <p style="color:var(--mut);font-size:13px;line-height:1.6;margin-bottom:14px">Enter your project URL and anon (public) key from Supabase → Project Settings → API. Never paste the service-role key.</p>
+ <div style="display:grid;gap:12px"><input id="su" placeholder="https://xxxx.supabase.co"><input id="sk" placeholder="anon public key"><button class="btn" id="ss">Save &amp; continue</button><div id="sm" class="err"></div></div></div></main>`;
+ $('#ss').onclick=()=>{
+  const url=$('#su').value.trim().replace(/\/+$/,''),key=$('#sk').value.trim();
+  if(!/^https?:\/\/.+/.test(url)||key.length<20){$('#sm').textContent='Enter a valid project URL and anon key.';return}
+  try{if(JSON.parse(atob(key.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role'){$('#sm').textContent='That is a service-role key. Use the anon key instead.';return}}catch{}
+  localStorage.setItem('medusa_cfg',JSON.stringify({url,key}));location.reload();
+ };
+}
+if(!CONFIGURED){setup()}else{addEventListener('hashchange',route);route()}
+</script>
+</body>
+</html>
