@@ -127,31 +127,175 @@ async function upOne(f){
  x.send(f);
 }
 
+
 // ---------- Viewer ----------
 async function viewer(id){
- root.innerHTML='<div class="view"><div class="stage">Loading…</div></div>';
- const {data:f}=await sb.rpc('get_file',{p_id:id});
- const head=`<nav><a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a><span class="sp"></span><button class="btn o s" id="sh">Share</button><span id="dl"></span></nav>`;
- if(!f){root.innerHTML=`<div class="view">${head}<div class="stage" style="flex-direction:column;text-align:center"><h1 style="font-size:72px;color:var(--gold)">404</h1><p style="color:var(--mut)">This file doesn’t exist, has expired, or the owner has disabled sharing.</p><br><a class="btn" href="#/">Go to MEDUSA</a></div></div>`;return}
- const {data:s,error}=await sb.storage.from(BUCKET).createSignedUrl(f.path,3600);
- const {data:sd}=f.allow_download?await sb.storage.from(BUCKET).createSignedUrl(f.path,3600,{download:f.name}):{data:null};
- const u=s?.signedUrl; let body='';
- if(!u)body=`<p class="err">Could not load file: ${esc(error?.message||'')}</p>`;
- else if(f.kind==='image')body=`<img src="${u}" alt="${esc(f.name)}" id="im">`;
- else if(f.kind==='video')body=`<video src="${u}" controls playsinline preload="metadata"></video>`;
- else if(f.kind==='audio')body=`<div class="aud" id="au"><div class="disc"></div><h3>${esc(f.name)}</h3><audio src="${u}" controls preload="metadata"></audio></div>`;
- else if(f.name.toLowerCase().endsWith('.pdf'))body=`<iframe id="pf" title="${esc(f.name)}"></iframe>`;
- else if(f.name.toLowerCase().endsWith('.txt'))body=`<pre id="tx" style="white-space:pre-wrap;max-width:900px;width:100%" class="glass">Loading…</pre>`;
- else body=`<div class="glass" style="text-align:center"><h3>${esc(f.name)}</h3><p style="color:var(--mut);margin:10px 0">In-browser preview isn’t available for this format.</p>${sd?'':'<p class="err">Downloads are disabled by the owner.</p>'}</div>`;
- root.innerHTML=`<div class="view">${head}<div class="stage">${body}</div><footer>${esc(f.name)} · ${fmt(f.size)} · By TYMSTAR</footer></div>`;
- $('#sh').onclick=()=>navigator.share?navigator.share({title:f.name,url:location.href}):(navigator.clipboard.writeText(location.href),$('#sh').textContent='Link copied ✓');
- if(sd)$('#dl').innerHTML=`<a class="btn s" href="${sd.signedUrl}">Download</a>`;
- if($('#im'))$('#im').onclick=e=>e.target.classList.toggle('z');
- if($('#im'))$('#im').ondblclick=e=>e.target.requestFullscreen?.();
- if($('#au')){const a=$('#au audio');a.onplay=()=>$('#au').classList.add('p');a.onpause=a.onended=()=>$('#au').classList.remove('p')}
- if($('#tx'))fetch(u).then(r=>r.text()).then(t=>$('#tx').textContent=t);
- if($('#pf'))fetch(u).then(r=>r.blob()).then(b=>{$('#pf').src=URL.createObjectURL(new Blob([b],{type:'application/pdf'}))+'#toolbar=1'}).catch(()=>{$('#pf').outerHTML='<p class="err">Could not load this PDF.</p>'});
+ root.innerHTML='<div class="view"><div class="stage">Loading file...</div></div>';
+
+ // Retrieve the file record
+ const {data:result,error:rpcError}=await sb.rpc('get_file',{p_id:id});
+
+ console.log('MEDUSA file lookup:',result);
+ console.log('MEDUSA lookup error:',rpcError);
+
+ const f=Array.isArray(result)?result[0]:result;
+
+ const head=`<nav>
+ <a href="#/" class="logo"><b>MEDUSA</b><small>By TYMSTAR</small></a>
+ <span class="sp"></span>
+ <button class="btn o s" id="sh">Share</button>
+ <span id="dl"></span>
+ </nav>`;
+
+ // Check whether the file exists
+ if(rpcError || !f){
+  root.innerHTML=`<div class="view">${head}
+  <div class="stage" style="flex-direction:column;text-align:center">
+  <h1 style="font-size:72px;color:var(--gold)">404</h1>
+  <h2>Unable to find this file</h2>
+  <p class="err">${esc(rpcError?.message||'File not found, expired, or sharing is disabled.')}</p>
+  <br><a class="btn" href="#/">Go to MEDUSA</a>
+  </div></div>`;
+  console.error('MEDUSA file retrieval failed:',rpcError);
+  return;
+ }
+
+ // Generate the main viewing URL
+ const {data:s,error:signedError}=await sb.storage
+  .from(BUCKET)
+  .createSignedUrl(f.path,3600);
+
+ console.log('MEDUSA signed URL result:',s);
+ console.log('MEDUSA signed URL error:',signedError);
+
+ // Check signed URL generation
+ if(signedError || !s?.signedUrl){
+  root.innerHTML=`<div class="view">${head}
+  <div class="stage" style="flex-direction:column;text-align:center">
+  <h2>File access problem</h2>
+  <p class="err">${esc(signedError?.message||'Could not generate the file link.')}</p>
+  <br><a class="btn" href="#/">Return Home</a>
+  </div></div>`;
+  console.error('MEDUSA signed URL failed:',signedError);
+  return;
+ }
+
+ const u=s.signedUrl;
+
+ // Generate download URL only when downloads are enabled
+ let sd=null;
+
+ if(f.allow_download){
+  const downloadResult=await sb.storage
+   .from(BUCKET)
+   .createSignedUrl(f.path,3600,{download:f.name});
+
+  if(downloadResult.error){
+   console.error('MEDUSA download URL error:',downloadResult.error);
+  }else{
+   sd=downloadResult.data;
+  }
+ }
+
+ // Prepare the content preview
+ let body='';
+
+ if(f.kind==='image'){
+  body=`<img src="${u}" alt="${esc(f.name)}" id="im">`;
+
+ }else if(f.kind==='video'){
+  body=`<video src="${u}" controls playsinline preload="metadata"></video>`;
+
+ }else if(f.kind==='audio'){
+  body=`<div class="aud" id="au">
+  <div class="disc"></div>
+  <h3>${esc(f.name)}</h3>
+  <audio src="${u}" controls preload="metadata"></audio>
+  </div>`;
+
+ }else if(f.name.toLowerCase().endsWith('.pdf')){
+  body=`<iframe id="pf" title="${esc(f.name)}"></iframe>`;
+
+ }else if(f.name.toLowerCase().endsWith('.txt')){
+  body=`<pre id="tx" style="white-space:pre-wrap;max-width:900px;width:100%" class="glass">Loading text file...</pre>`;
+
+ }else{
+  body=`<div class="glass" style="text-align:center">
+  <h3>${esc(f.name)}</h3>
+  <p style="color:var(--mut);margin:10px 0">
+  In-browser preview isn't available for this format.
+  </p>
+  ${sd?'':'<p class="err">Downloads are unavailable.</p>'}
+  </div>`;
+ }
+
+ // Display the file page
+ root.innerHTML=`<div class="view">
+ ${head}
+ <div class="stage">${body}</div>
+ <footer>${esc(f.name)} · ${fmt(f.size)} · By TYMSTAR</footer>
+ </div>`;
+
+ // Share button
+ $('#sh').onclick=()=>{
+  if(navigator.share){
+   navigator.share({title:f.name,url:location.href});
+  }else{
+   navigator.clipboard.writeText(location.href);
+   $('#sh').textContent='Link copied ✓';
+  }
+ };
+
+ // Download button
+ if(sd){
+  $('#dl').innerHTML=`<a class="btn s" href="${sd.signedUrl}">Download</a>`;
+ }
+
+ // Image zoom
+ if($('#im')){
+  $('#im').onclick=e=>e.target.classList.toggle('z');
+  $('#im').ondblclick=e=>e.target.requestFullscreen?.();
+ }
+
+ // Audio animation
+ if($('#au')){
+  const a=$('#au audio');
+  a.onplay=()=>$('#au').classList.add('p');
+  a.onpause=a.onended=()=>$('#au').classList.remove('p');
+ }
+
+ // Display TXT files
+ if($('#tx')){
+  fetch(u)
+   .then(r=>{
+    if(!r.ok)throw new Error('Could not retrieve the text file.');
+    return r.text();
+   })
+   .then(t=>$('#tx').textContent=t)
+   .catch(e=>$('#tx').textContent=e.message);
+ }
+
+ // Display PDF files
+ if($('#pf')){
+  fetch(u)
+   .then(r=>{
+    if(!r.ok)throw new Error('Could not retrieve the PDF.');
+    return r.blob();
+   })
+   .then(b=>{
+    const pdfURL=URL.createObjectURL(
+     new Blob([b],{type:'application/pdf'})
+    );
+    $('#pf').src=pdfURL+'#toolbar=1';
+   })
+   .catch(e=>{
+    console.error('MEDUSA PDF error:',e);
+    $('#pf').outerHTML=
+     `<p class="err">${esc(e.message)}</p>`;
+   });
+ }
 }
+
 
 // ---------- Auth ----------
 function auth(){
